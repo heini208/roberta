@@ -7,8 +7,8 @@ define(["require", "exports", "./interpreter.state", "./interpreter.constants", 
          * . @param generatedCode argument contains the operations and the function definitions
          * . @param robotBehaviour implementation of the ARobotBehaviour class
          * . @param cbOnTermination is called when the program has terminated
-         */
-        function Interpreter(generatedCode, r, cbOnTermination, simBreakpoints) {
+        */
+        function Interpreter(generatedCode, configuration, r, cbOnTermination, simBreakpoints) {
             this.terminated = false;
             this.callbackOnTermination = undefined;
             this.debugDelay = 2;
@@ -16,6 +16,7 @@ define(["require", "exports", "./interpreter.state", "./interpreter.constants", 
             this.callbackOnTermination = cbOnTermination;
             var stmts = generatedCode[C.OPS];
             this.robotBehaviour = r;
+            r.setConfiguration(configuration);
             this.breakpoints = simBreakpoints;
             this.events = {};
             this.events[C.DEBUG_STEP_INTO] = false;
@@ -255,16 +256,7 @@ define(["require", "exports", "./interpreter.state", "./interpreter.constants", 
                         var name_2 = stmt[C.NAME];
                         var port = stmt[C.PORT];
                         var durationType = stmt[C.MOTOR_DURATION];
-                        if (durationType === C.DEGREE || durationType === C.DISTANCE || durationType === C.ROTATIONS) {
-                            // if durationType is defined, then duration must be defined, too. Thus, it is never 'undefined' :-)
-                            var rotationPerSecond = (C.MAX_ROTATION * Math.abs(speed)) / 100.0;
-                            duration = (duration / rotationPerSecond) * 1000;
-                            if (durationType === C.DEGREE) {
-                                duration /= 360.0;
-                            }
-                        }
-                        this.robotBehaviour.motorOnAction(name_2, port, duration, speed);
-                        return [duration ? duration : 0, true];
+                        return [this.robotBehaviour.motorOnAction(name_2, port, duration, durationType, speed), true];
                     }
                     case C.DRIVE_ACTION: {
                         var speedOnly = stmt[C.SPEED_ONLY];
@@ -334,8 +326,8 @@ define(["require", "exports", "./interpreter.state", "./interpreter.constants", 
                         var speedA = this.state.pop();
                         var portA = stmt[C.PORT_A];
                         var portB = stmt[C.PORT_B];
-                        this.robotBehaviour.motorOnAction(portA, portA, duration, speedA);
-                        this.robotBehaviour.motorOnAction(portB, portB, duration, speedB);
+                        this.robotBehaviour.motorOnAction(portA, portA, duration, undefined, speedA);
+                        this.robotBehaviour.motorOnAction(portB, portB, duration, undefined, speedB);
                         return [duration, true];
                     }
                     case C.MOTOR_STOP: {
