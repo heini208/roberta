@@ -3,9 +3,9 @@ import { State } from './interpreter.state';
 import * as C from './interpreter.constants';
 import * as U from './interpreter.util';
 
-var driveConfig = {
-    motorL: { port: 1, orientation: 1 },
-    motorR: { port: 2, orientation: 1 },
+let driveConfig = {
+    motorL: { port: 2, orientation: -1 },
+    motorR: { port: 3, orientation: -1 },
     orientation: [1, 1, 1, 1],
     wheelDiameter: 5.6,
     trackWidth: 22.8,
@@ -65,10 +65,34 @@ let cmdPropToORB = {
     },
 };
 
-var substrationValueEncoder = 0;
-var substrationValueGyro = 0;
+let resetValueEncoder = {
+    Motor : [
+        {reset: 0},
+        {reset: 0},
+        {reset: 0},
+        {reset: 0},
+    ]
+}
 
-//Noch mode prüfen
+let otherMotorsConfig = {
+    Motor : [
+        {name: "", port: 0},
+        {name: "", port: 1},
+        {name: "", port: 2},
+        {name: "", port: 3},
+    ]
+}
+
+let configSensorsPorts = {
+    Sensor: [
+        {name: "", port: 0},
+        {name: "", port: 1},
+        {name: "", port: 2},
+        {name: "", port: 3},
+    ]
+}
+
+//TODO: Check MODs, one can more check, and wait for daten
 function isSensorValueValid(id: number): boolean {
     if (propFromORB.Sensor[id].valid == true) {
         return true;
@@ -76,7 +100,38 @@ function isSensorValueValid(id: number): boolean {
         return false;
     }
 }
-
+/*
+function isSensorValueValid(id: number){
+    if ((propFromORB.Sensor[id].valid == true) && (propFromORB.Sensor[id].option == cmdConfigToORB.data.Sensor[id].option)) {
+        return true;
+    }
+    else {
+        return isSensorValueValidError(id,1);
+        //return false;
+    }
+}
+function isSensorValueValidError(id: number, error: number){
+    if ((propFromORB.Sensor[id].valid == true) && (propFromORB.Sensor[id].option == cmdConfigToORB.data.Sensor[id].option)) {
+        return true;
+    }
+    else {
+        error = error + 1;
+        if (error > 10){
+            return false;
+        }
+        else{
+            waitMs(1);
+            isSensorValueValidError(id, error);
+        }
+    }
+}
+//TODO:Integrationstest, prüfe lese, baue
+function waitMs(ms) {//TODO: wait ms
+    let stopTime = new Date().getMilliseconds()
+    stopTime = stopTime + ms < 1000 ? stopTime + ms : ms - (1000 - stopTime);
+    while (new Date().getMilliseconds() < stopTime);
+}
+*/
 function configSensor(id: number, type: number, mode: number, option: number) {
     id = id - 1;
     if (0 <= id && id < 4) {
@@ -96,6 +151,7 @@ function getSensorValue(id: number) {
     }
     return 0;
 }
+
 
 function getSensorValueColor(id: number) {
     id = id - 1;
@@ -134,7 +190,7 @@ function getSensorValueUltrasonic(id: number) {
     id = id - 1;
     if (0 <= id && id < 4) {
         if (isSensorValueValid(id) == true) {
-            var a = propFromORB.Sensor[id].value[0];
+            let a = propFromORB.Sensor[id].value[0];
             return a / 10;
         }
     }
@@ -147,17 +203,13 @@ function getSensorValueGyro(id: number, slot: string) {
         if (isSensorValueValid(id) == true) {
             if (propFromORB.Sensor[id].value[0] <= 32767) {
                 if (slot == 'angle') {
-                    var y = propFromORB.Sensor[id].value[0];
-                    var x = propFromORB.Sensor[id].value[1];
-                    return y - substrationValueGyro;
+                    return propFromORB.Sensor[id].value[0];
                 }
                 return propFromORB.Sensor[id].value;
             } else {
                 propFromORB.Sensor[id].value[0] = propFromORB.Sensor[id].value[0] - 65536;
                 if (slot == 'angle') {
-                    var y = propFromORB.Sensor[id].value[0];
-                    var x = propFromORB.Sensor[id].value[1];
-                    return y + substrationValueGyro;
+                    return propFromORB.Sensor[id].value[0];
                 }
                 return propFromORB.Sensor[id].value;
             }
@@ -181,16 +233,16 @@ function getSensorValueTouch(id: number) {
 }
 
 function getEncoderValue(port: number, mode: any) {
-    var value = 0;
+    let value = getMotorPos(port) - resetValueEncoder.Motor[port].reset
     if (mode == 'degree') {
-        return (value = (getMotorPos(port) - substrationValueEncoder) / 2.7);
+        return (value / 2.7);
     }
     if (mode == 'rotation') {
-        return (value = getMotorPos(port) / 1000);
+        return (value / 1000);
     }
     if (mode == 'distance') {
-        var circumference = 2 * 3.14 * (driveConfig.wheelDiameter / 2);
-        return (value = (getMotorPos(port) * circumference) / 1000);
+        let circumference = 2 * 3.14 * (driveConfig.wheelDiameter / 2);
+        return ((value* circumference) / 1000);
     }
 }
 
@@ -237,7 +289,6 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
         this.toDisplayFct = toDisplayFct;
         this.timers = {};
         this.timers['start'] = Date.now();
-
         U.loggingEnabled(true, true);
     }
 
@@ -258,7 +309,7 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
                 }
                 break;
             case 'didAddService':
-                var theOrbA = this.orb[data.brickid];
+                let theOrbA = this.orb[data.brickid];
                 if (data.state == 'connected') {
                     if (data.id && data.sensor) {
                         theOrbA[data.id] = {};
@@ -283,7 +334,7 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
                 }
                 break;
             case 'update':
-                var theOrbU = this.orb[data.brickid];
+                let theOrbU = this.orb[data.brickid];
                 if (data.id) {
                     if (theOrbU[data.id] === undefined) {
                         theOrbU[data.id] = {};
@@ -304,8 +355,8 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
     }
 
     public getConnectedBricks = function () {
-        var brickids = [];
-        for (var brickid in this.orb) {
+        let brickids = [];
+        for (let brickid in this.orb) {
             if (this.orb.hasOwnProperty(brickid)) {
                 brickids.push(brickid);
             }
@@ -314,7 +365,7 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
     };
 
     public getBrickIdByName = function (name: string) {
-        for (var brickid in this.orb) {
+        for (let brickid in this.orb) {
             if (this.orb.hasOwnProperty(brickid)) {
                 if (this.orb[brickid].brickname === name.toUpperCase()) {
                     return brickid;
@@ -333,23 +384,20 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
         this.toDisplayFct({ clear: true });
     };
 
-    public mappPortMotor(port: any) {
-        //From MotorBlock come only letter, It must be mapped to numbers.
-        if (port == 'a') {
-            return 0;
+    public getSensorPort (name: any, sensor: string){
+        for (let i = 0; i < 4; i++){
+            if ((configSensorsPorts.Sensor[i].name == name)&&(sensor != "encoder")){
+                return configSensorsPorts.Sensor[i].port;
+            }
+            if ((otherMotorsConfig.Motor[i].name == name)&&(sensor == "encoder")){
+                return otherMotorsConfig.Motor[i].port;
+            }
         }
-        if (port == 'b') {
-            return 1;
-        }
-        if (port == 'c') {
-            return 2;
-        }
-        if (port == 'd') {
-            return 3;
-        }
+        throw new Error('No Sensor');
     }
 
-    public getSample = function (s, name: string, sensor: string, port: number, slot: string) {
+    public getSample = function (s, name: string, sensor: string, port: any, slot: string) {
+        port = this.getSensorPort(port,sensor);
         if (sensor == 'ultrasonic') {
             cmdConfigToORB.data.Sensor[port - 1].type = 1;
             if (slot == 'distance') {
@@ -412,7 +460,7 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
             s.push(this.timerGet(port));
             return;
         } else if (sensor == 'encoder') {
-            s.push(getEncoderValue(this.mappPortMotor(port), slot));
+            s.push(getEncoderValue(port, slot));
         }
         return;
     };
@@ -421,7 +469,7 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
         if (speed > 100) {
             speed = 100;
         }
-        var speedMax = 210;
+        let speedMax = 210;
         speed = (speed * speedMax) / 100;
         return speed;
     }
@@ -430,14 +478,25 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
         if (speed > 100) {
             speed = 100;
         }
-        var speedMax = 420;
+        let speedMax = 420;
         speed = (speed * speedMax) / 100;
         return speed;
     }
 
+
+    public mapSingleMotor(name: any){//TODO map Motors to Ports, first for MotorOnAction -> check
+        for (let i = 0; i < 4; i++){
+            if (otherMotorsConfig.Motor[i].name == name){
+                return otherMotorsConfig.Motor[i].port;
+            }
+        }
+        return 0;
+    }
+
     public motorOnAction(name: string, port: any, duration: number, durationType: any, speed: number) {
         U.debug('motorOnAction' + ' port:' + port + ' duration:' + duration + ' durationType:' + durationType + ' speed:' + speed);
-        port = this.mappPortMotor(port);
+        port = this.mapSingleMotor(port.toUpperCase());//TODO test
+        //port = this.mappPortMotor(port);
         speed = this.setSpeedToProcent(speed);
         speed = 10 * speed;
         let timeToGo = 0;
@@ -459,6 +518,7 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
 
     public motorStopAction(name: string, port: number) {
         U.debug('motorStopAction' + ' port:' + port);
+        port = this.mapSingleMotor(name);//TODO test
         setMotor(port, 0, 0, 0);
         this.btInterfaceFct(cmdPropToORB);
         return 0;
@@ -597,12 +657,10 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
     }
 
     public toneAction(name: string, frequency: number, duration: number) {
-        throw new Error('Method not implemented.');
         return 0;
     }
 
     public showImageAction(_text: any, _mode: any) {
-        throw new Error('Method not implemented.');
         return 0;
     }
 
@@ -623,62 +681,87 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
         return 0;
     }
 
-    public setConfiguration(configuration: any) {
-        driveConfig.trackWidth = configuration.TRACKWIDTH;
-        driveConfig.wheelDiameter = configuration.WHEELDIAMETER;
-        if (driveConfig.wheelDiameter != 0) {
-            driveConfig.distanceToTics = 1000.0 / (10.0 * driveConfig.wheelDiameter * Math.PI);
+    public setConfigurationToDefault (){
+        for (let i = 0; i < 4; i++){
+            otherMotorsConfig.Motor[i].name = "";
+            otherMotorsConfig.Motor[i].port = i;
+            configSensorsPorts.Sensor[i].name = "";
+            configSensorsPorts.Sensor[i].port = i;
         }
+    }
 
-        this.setConfigMotors(configuration.ACTUATORS);
-        this.setConfigSensors(configuration.SENSORS);
+    public setConfiguration(configuration: any) {
+        this.setConfigurationToDefault();
+        configuration = configuration.ACTUATORS;
+        for (let actuators in configuration){
+            let actuator = configuration[actuators];
+            if (actuator.TYPE == "DIFFERENTIALDRIVE"){
+                this.setDifferentialDrive(actuator);
+            }
+            else if (actuator.TYPE == "MOTOR"){
+                this.setSingleMotor(actuator, actuators);
+            }
+            else if ((actuator.TYPE != "DIFFERENTIALDRIVE")&&(actuator.TYPE != "MOTOR")){
+                this.setSensor(actuator, actuators);
+            }
+        }
         this.wait(3);
         return 0;
     }
 
-    public setConfigSingleMotor(motor: any, idx: number) {
-        if (motor != undefined) {
-            if (motor.MOTOR_REVERSE == 'ON') {
-                driveConfig.orientation[idx] = -1;
-            }
-            if (motor.MOTOR_DRIVE == 'RIGHT') {
-                driveConfig.motorR.port = idx;
-                driveConfig.motorR.orientation = driveConfig.orientation[idx];
-            } else if (motor.MOTOR_DRIVE == 'LEFT') {
-                driveConfig.motorL.port = idx;
-                driveConfig.motorL.orientation = driveConfig.orientation[idx];
-            }
+    public setDifferentialDrive(differentialDrive: any){
+        driveConfig.trackWidth = differentialDrive.BRICK_TRACK_WIDTH;
+        driveConfig.wheelDiameter = differentialDrive.BRICK_WHEEL_DIAMETER;
+        if (driveConfig.wheelDiameter != 0) {
+            driveConfig.distanceToTics = 1000.0 / (10.0 * driveConfig.wheelDiameter * Math.PI);
         }
-    }
-
-    public setConfigMotors(motors: any): number {
-        this.setConfigSingleMotor(motors.A, 0);
-        this.setConfigSingleMotor(motors.B, 1);
-        this.setConfigSingleMotor(motors.C, 2);
-        this.setConfigSingleMotor(motors.D, 3);
+        driveConfig.motorL.port = this.mapMotorPort(differentialDrive.MOTOR_L);
+        driveConfig.motorR.port = this.mapMotorPort(differentialDrive.MOTOR_R);
         return 0;
     }
 
-    public setConfigSensors(sensors: any): number {
-        for (var i = 1; i < 5; i++) {
-            if (sensors[i] == 'TOUCH') {
-                configSensor(i, 4, 0, 0);
-                this.btInterfaceFct(cmdConfigToORB);
-            }
-            if (sensors[i] == 'ULTRASONIC' || sensors[i] == 'GYRO' || sensors[i] == 'INFRARED') {
-                configSensor(i, 1, 0, 0);
-                this.btInterfaceFct(cmdConfigToORB);
-            }
-            if (sensors[i] == 'COLOR') {
-                configSensor(i, 1, 2, 0);
-                this.btInterfaceFct(cmdConfigToORB);
-            }
+    public setSingleMotor (motor: any, name: any){
+        let port = this.mapMotorPort(motor.MOTOR);
+        otherMotorsConfig.Motor[port].port = port;
+        otherMotorsConfig.Motor[port].name = name;
+        return 0;
+    }
+
+    public setSensor(sensor: any, name: any){
+        let port = this.mapSensorPort(sensor.CONNECTOR);
+        configSensorsPorts.Sensor[port-1].name = name;
+        configSensorsPorts.Sensor[port-1].port = port;
+        if (sensor.TYPE == 'TOUCH'){
+            configSensor(port, 4, 0, 0);
+            this.btInterfaceFct(cmdConfigToORB);
+        }
+        if (sensor.TYPE == 'ULTRASONIC' || sensor.TYPE == 'GYRO' || sensor.TYPE == 'INFRARED'){
+            configSensor(port, 1, 0, 0);
+            this.btInterfaceFct(cmdConfigToORB);
+        }
+        if (sensor.TYPE == 'COLOR'){
+            configSensor(port, 1, 2, 0);
+            this.btInterfaceFct(cmdConfigToORB);
         }
         return 0;
+    }
+
+    public mapSensorPort (port: any){
+        if ((port == "S1")||(port == "1")){return 1;}
+        if ((port == "S2")||(port == "2")){return 2;}
+        if ((port == "S3")||(port == "3")){return 3;}
+        if ((port == "S4")||(port == "4")){return 4;}
+    }
+
+    public mapMotorPort (port: any){
+        if ((port == "M1") || (port == "1")){return 0;}
+        if ((port == "M2") || (port == "2")){return 1;}
+        if ((port == "M3") || (port == "3")){return 2;}
+        if ((port == "M4") || (port == "4")){return 3;}
     }
 
     public wait(seconds) {
-        var stopTime = new Date().getSeconds();
+        let stopTime = new Date().getSeconds();
         stopTime = stopTime + seconds < 60 ? stopTime + seconds : seconds - (60 - stopTime);
         while (new Date().getSeconds() < stopTime);
     }
@@ -686,7 +769,7 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
     public writePinAction(_pin: any, _mode: string, _value: number): void {}
 
     public close() {
-        let ids = this.getConnectedBricks();
+        let ids = this.getConnectedBricks();//TODO:test
         for (let id in ids) {
             if (ids.hasOwnProperty(id)) {
                 // let name = this.getBrickById(ids[id]).brickname;
@@ -702,12 +785,12 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
 
     public encoderReset(port: any): void {
         U.debug('encoderReset for ' + port);
-        substrationValueEncoder = getMotorPos(this.mappPortMotor(port));
+        resetValueEncoder.Motor[this.mapSingleMotor(port)].reset = getMotorPos(this.mapSingleMotor(port))//TODO test
     }
 
     public gyroReset(port: number): void {
         U.debug('gyroReset for ' + port);
-        substrationValueGyro = getSensorValue(port);
+        configSensor(port,1, 0, 0)
     }
 
     public lightAction(_mode: string, _color: string, _port: string): void {
@@ -715,14 +798,6 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
     }
 
     public playFileAction(_file: string): number {
-        throw new Error('Method not implemented.');
-    }
-
-    public _setVolumeAction(_volume: number): void {
-        throw new Error('Method not implemented.');
-    }
-
-    public _getVolumeAction(_s: State): void {
         throw new Error('Method not implemented.');
     }
 
@@ -739,7 +814,8 @@ export class RobotOrbBehaviour extends ARobotBehaviour {
     }
 
     public setMotorSpeed(_name: string, _port: any, _speed: number): void {
-        let port = this.mappPortMotor(_port);
+        let port = this.mapSingleMotor(_name); //TODO test
+        //let port = this.mappPortMotor(_port);
         setMotor(port, 0, 10 * driveConfig.orientation[port] * _speed, 0);
         this.btInterfaceFct(cmdPropToORB);
     }
