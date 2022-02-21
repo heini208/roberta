@@ -2,10 +2,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -74,30 +76,24 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
         },
     };
     var resetValueEncoder = {
-        Motor: [
-            { reset: 0 },
-            { reset: 0 },
-            { reset: 0 },
-            { reset: 0 },
-        ]
+        Motor: [{ reset: 0 }, { reset: 0 }, { reset: 0 }, { reset: 0 }],
     };
     var otherMotorsConfig = {
         Motor: [
-            { name: "", port: 0 },
-            { name: "", port: 1 },
-            { name: "", port: 2 },
-            { name: "", port: 3 },
-        ]
+            { name: '', port: 0 },
+            { name: '', port: 1 },
+            { name: '', port: 2 },
+            { name: '', port: 3 },
+        ],
     };
     var configSensorsPorts = {
         Sensor: [
-            { name: "", port: 0 },
-            { name: "", port: 1 },
-            { name: "", port: 2 },
-            { name: "", port: 3 },
-        ]
+            { name: '', port: 0 },
+            { name: '', port: 1 },
+            { name: '', port: 2 },
+            { name: '', port: 3 },
+        ],
     };
-    //TODO: Check MODs, one can more check, and wait for daten
     function isSensorValueValid(id) {
         if (propFromORB.Sensor[id].valid == true) {
             return true;
@@ -106,38 +102,6 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
             return false;
         }
     }
-    /*
-    function isSensorValueValid(id: number){
-        if ((propFromORB.Sensor[id].valid == true) && (propFromORB.Sensor[id].option == cmdConfigToORB.data.Sensor[id].option)) {
-            return true;
-        }
-        else {
-            return isSensorValueValidError(id,1);
-            //return false;
-        }
-    }
-    function isSensorValueValidError(id: number, error: number){
-        if ((propFromORB.Sensor[id].valid == true) && (propFromORB.Sensor[id].option == cmdConfigToORB.data.Sensor[id].option)) {
-            return true;
-        }
-        else {
-            error = error + 1;
-            if (error > 10){
-                return false;
-            }
-            else{
-                waitMs(1);
-                isSensorValueValidError(id, error);
-            }
-        }
-    }
-    //TODO:Integrationstest, prüfe lese, baue
-    function waitMs(ms) {//TODO: wait ms
-        let stopTime = new Date().getMilliseconds()
-        stopTime = stopTime + ms < 1000 ? stopTime + ms : ms - (1000 - stopTime);
-        while (new Date().getMilliseconds() < stopTime);
-    }
-    */
     function configSensor(id, type, mode, option) {
         id = id - 1;
         if (0 <= id && id < 4) {
@@ -238,14 +202,14 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
     function getEncoderValue(port, mode) {
         var value = getMotorPos(port) - resetValueEncoder.Motor[port].reset;
         if (mode == 'degree') {
-            return (value / 2.7);
+            return value / 2.7;
         }
         if (mode == 'rotation') {
-            return (value / 1000);
+            return value / 1000;
         }
         if (mode == 'distance') {
             var circumference = 2 * 3.14 * (driveConfig.wheelDiameter / 2);
-            return ((value * circumference) / 1000);
+            return (value * circumference) / 1000;
         }
     }
     function setMotor(id, mode, speed, pos) {
@@ -463,10 +427,10 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
         };
         RobotOrbBehaviour.prototype.getSensorPort = function (name, sensor) {
             for (var i = 0; i < 4; i++) {
-                if ((configSensorsPorts.Sensor[i].name == name) && (sensor != "encoder")) {
+                if (configSensorsPorts.Sensor[i].name == name && sensor != 'encoder') {
                     return configSensorsPorts.Sensor[i].port;
                 }
-                if ((otherMotorsConfig.Motor[i].name == name) && (sensor == "encoder")) {
+                if (otherMotorsConfig.Motor[i].name == name && sensor == 'encoder') {
                     return otherMotorsConfig.Motor[i].port;
                 }
             }
@@ -489,6 +453,7 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
             return speed;
         };
         RobotOrbBehaviour.prototype.mapSingleMotor = function (name) {
+            //TODO map Motors to Ports, first for MotorOnAction -> check
             for (var i = 0; i < 4; i++) {
                 if (otherMotorsConfig.Motor[i].name == name) {
                     return otherMotorsConfig.Motor[i].port;
@@ -498,10 +463,10 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
         };
         RobotOrbBehaviour.prototype.motorOnAction = function (name, port, duration, durationType, speed) {
             U.debug('motorOnAction' + ' port:' + port + ' duration:' + duration + ' durationType:' + durationType + ' speed:' + speed);
-            port = this.mapSingleMotor(port.toUpperCase()); //TODO test
-            //port = this.mappPortMotor(port);
+            port = this.mapSingleMotor(port.toUpperCase());
             speed = this.setSpeedToProcent(speed);
             speed = 10 * speed;
+            speed *= -1;
             var timeToGo = 0;
             if (duration === undefined) {
                 setMotor(port, 2, driveConfig.orientation[port] * speed, 0);
@@ -521,7 +486,7 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
         };
         RobotOrbBehaviour.prototype.motorStopAction = function (name, port) {
             U.debug('motorStopAction' + ' port:' + port);
-            port = this.mapSingleMotor(name); //TODO test
+            port = this.mapSingleMotor(name);
             setMotor(port, 0, 0, 0);
             this.btInterfaceFct(cmdPropToORB);
             return 0;
@@ -664,9 +629,9 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
         };
         RobotOrbBehaviour.prototype.setConfigurationToDefault = function () {
             for (var i = 0; i < 4; i++) {
-                otherMotorsConfig.Motor[i].name = "";
+                otherMotorsConfig.Motor[i].name = '';
                 otherMotorsConfig.Motor[i].port = i;
-                configSensorsPorts.Sensor[i].name = "";
+                configSensorsPorts.Sensor[i].name = '';
                 configSensorsPorts.Sensor[i].port = i;
             }
         };
@@ -675,13 +640,13 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
             configuration = configuration.ACTUATORS;
             for (var actuators in configuration) {
                 var actuator = configuration[actuators];
-                if (actuator.TYPE == "DIFFERENTIALDRIVE") {
+                if (actuator.TYPE == 'DIFFERENTIALDRIVE') {
                     this.setDifferentialDrive(actuator);
                 }
-                else if (actuator.TYPE == "MOTOR") {
+                else if (actuator.TYPE == 'MOTOR') {
                     this.setSingleMotor(actuator, actuators);
                 }
-                else if ((actuator.TYPE != "DIFFERENTIALDRIVE") && (actuator.TYPE != "MOTOR")) {
+                else if (actuator.TYPE != 'DIFFERENTIALDRIVE' && actuator.TYPE != 'MOTOR') {
                     this.setSensor(actuator, actuators);
                 }
             }
@@ -723,30 +688,30 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
             return 0;
         };
         RobotOrbBehaviour.prototype.mapSensorPort = function (port) {
-            if ((port == "S1") || (port == "1")) {
+            if (port == 'S1' || port == '1') {
                 return 1;
             }
-            if ((port == "S2") || (port == "2")) {
+            if (port == 'S2' || port == '2') {
                 return 2;
             }
-            if ((port == "S3") || (port == "3")) {
+            if (port == 'S3' || port == '3') {
                 return 3;
             }
-            if ((port == "S4") || (port == "4")) {
+            if (port == 'S4' || port == '4') {
                 return 4;
             }
         };
         RobotOrbBehaviour.prototype.mapMotorPort = function (port) {
-            if ((port == "M1") || (port == "1")) {
+            if (port == 'M1' || port == '1') {
                 return 0;
             }
-            if ((port == "M2") || (port == "2")) {
+            if (port == 'M2' || port == '2') {
                 return 1;
             }
-            if ((port == "M3") || (port == "3")) {
+            if (port == 'M3' || port == '3') {
                 return 2;
             }
-            if ((port == "M4") || (port == "4")) {
+            if (port == 'M4' || port == '4') {
                 return 3;
             }
         };
@@ -773,7 +738,7 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
         };
         RobotOrbBehaviour.prototype.encoderReset = function (port) {
             U.debug('encoderReset for ' + port);
-            resetValueEncoder.Motor[this.mapSingleMotor(port)].reset = getMotorPos(this.mapSingleMotor(port)); //TODO test
+            resetValueEncoder.Motor[this.mapSingleMotor(port)].reset = getMotorPos(this.mapSingleMotor(port));
         };
         RobotOrbBehaviour.prototype.gyroReset = function (port) {
             U.debug('gyroReset for ' + port);
@@ -795,8 +760,7 @@ define(["require", "exports", "./interpreter.aRobotBehaviour", "./interpreter.co
             throw new Error('Method not implemented.');
         };
         RobotOrbBehaviour.prototype.setMotorSpeed = function (_name, _port, _speed) {
-            var port = this.mapSingleMotor(_name); //TODO test
-            //let port = this.mappPortMotor(_port);
+            var port = this.mapSingleMotor(_name);
             setMotor(port, 0, 10 * driveConfig.orientation[port] * _speed, 0);
             this.btInterfaceFct(cmdPropToORB);
         };

@@ -7,17 +7,17 @@ import com.google.common.collect.ClassToInstanceMap;
 
 import de.fhg.iais.roberta.bean.IProjectBean;
 import de.fhg.iais.roberta.components.ConfigurationAst;
-import de.fhg.iais.roberta.syntax.configuration.ConfigurationComponent;
 import de.fhg.iais.roberta.components.UsedActor;
 import de.fhg.iais.roberta.syntax.Phrase;
-import de.fhg.iais.roberta.util.syntax.SC;
 import de.fhg.iais.roberta.syntax.action.Action;
 import de.fhg.iais.roberta.syntax.action.motor.differential.CurveAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.DriveAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.MotorDriveStopAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
+import de.fhg.iais.roberta.syntax.configuration.ConfigurationComponent;
 import de.fhg.iais.roberta.syntax.lang.expr.Expr;
 import de.fhg.iais.roberta.syntax.lang.expr.NumConst;
+import de.fhg.iais.roberta.util.syntax.SC;
 import de.fhg.iais.roberta.visitor.EV3DevMethods;
 import de.fhg.iais.roberta.visitor.hardware.actor.IDifferentialMotorVisitor;
 
@@ -68,30 +68,30 @@ public abstract class DifferentialMotorValidatorAndCollectorVisitorEv3 extends M
         return null;
     }
 
-    public Void visitCurveActionForDiff(CurveAction<Void> curveAction) {
-        requiredComponentVisited(curveAction, curveAction.getParamLeft().getSpeed(), curveAction.getParamRight().getSpeed());
-        Optional.ofNullable(curveAction.getParamLeft().getDuration())
+    public Void visitCurveActionForDiff(CurveAction curveAction) {
+        requiredComponentVisited(curveAction, curveAction.paramLeft.getSpeed(), curveAction.paramRight.getSpeed());
+        Optional.ofNullable(curveAction.paramLeft.getDuration())
             .ifPresent(duration -> requiredComponentVisited(curveAction, duration.getValue()));
-        Optional.ofNullable(curveAction.getParamRight().getDuration())
+        Optional.ofNullable(curveAction.paramRight.getDuration())
             .ifPresent(duration -> requiredComponentVisited(curveAction, duration.getValue()));
-        checkForZeroSpeedInCurve(curveAction.getParamLeft().getSpeed(), curveAction.getParamRight().getSpeed(), curveAction);
+        checkForZeroSpeedInCurve(curveAction.paramLeft.getSpeed(), curveAction.paramRight.getSpeed(), curveAction);
         checkAndAddLeftRightMotorPortForDiff(curveAction);
         return null;
     }
 
-    public Void visitTurnActionForDiff(TurnAction<Void> turnAction){
-        checkAndVisitMotionParam(turnAction, turnAction.getParam());
+    public Void visitTurnActionForDiff(TurnAction turnAction){
+        checkAndVisitMotionParam(turnAction, turnAction.param);
         checkAndAddLeftRightMotorPortForDiff(turnAction);
         return null;
     }
 
-    public Void visitDriveActionForDiff(DriveAction<Void> driveAction){
-        checkAndVisitMotionParam(driveAction, driveAction.getParam());
+    public Void visitDriveActionForDiff(DriveAction driveAction){
+        checkAndVisitMotionParam(driveAction, driveAction.param);
         checkAndAddLeftRightMotorPortForDiff(driveAction);
         return null;
     }
 
-    private boolean checkPortsForDiff(Phrase<Void> driveAction){
+    private boolean checkPortsForDiff(Phrase driveAction){
         String leftMotor = robotConfiguration.getConfigurationComponent("Diff").getOptProperty("MOTOR_L");
         String rightMotor = robotConfiguration.getConfigurationComponent("Diff").getOptProperty("MOTOR_R");
         if (rightMotor.equals(leftMotor)){
@@ -101,7 +101,7 @@ public abstract class DifferentialMotorValidatorAndCollectorVisitorEv3 extends M
         int numLeftMotors = 0;
         int numRightMotors = 0;
         for ( ConfigurationComponent component : robotConfiguration.getConfigurationComponentsValues() ){
-            if ( component.getComponentType().equals("MOTOR") ){
+            if ( component.componentType.equals("MOTOR") ){
                 String motorPort =  component.getOptProperty("MOTOR");
                 if (motorPort.equals(leftMotor)){
                     numRightMotors++;
@@ -121,7 +121,7 @@ public abstract class DifferentialMotorValidatorAndCollectorVisitorEv3 extends M
             return false;
     }
 
-    private void checkAndAddLeftRightMotorPortForDiff(Phrase<Void> driveAction){
+    private void checkAndAddLeftRightMotorPortForDiff(Phrase driveAction){
         ConfigurationComponent differentialDrive = robotConfiguration.getConfigurationComponent("Diff");
         if (differentialDrive == null){
             addErrorToPhrase(driveAction, "CONFIGURATION_ERROR_MOTOR_LEFT_MISSING");

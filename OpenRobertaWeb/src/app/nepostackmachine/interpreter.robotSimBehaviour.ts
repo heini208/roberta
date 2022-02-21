@@ -466,4 +466,9 @@ export class RobotMbedBehaviour extends ARobotBehaviour {
     }
 
     public close() {}
+
+    public setConfiguration(configuration: any): number {
+        //throw new Error("Method not implemented.");
+        return 0;
+    }
 }

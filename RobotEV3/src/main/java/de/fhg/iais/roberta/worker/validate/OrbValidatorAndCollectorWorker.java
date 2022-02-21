@@ -9,12 +9,11 @@ import java.util.Map;
 import com.google.common.collect.ClassToInstanceMap;
 
 import de.fhg.iais.roberta.bean.IProjectBean;
-import de.fhg.iais.roberta.components.ConfigurationComponent;
 import de.fhg.iais.roberta.components.Project;
-import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
+import de.fhg.iais.roberta.syntax.configuration.ConfigurationComponent;
 import de.fhg.iais.roberta.typecheck.NepoInfo;
 import de.fhg.iais.roberta.util.Key;
-import de.fhg.iais.roberta.syntax.SC;
+import de.fhg.iais.roberta.util.syntax.SC;
 import de.fhg.iais.roberta.visitor.validate.CommonNepoValidatorAndCollectorVisitor;
 import de.fhg.iais.roberta.visitor.validate.OrbValidatorAndCollectorVisitor;
 import de.fhg.iais.roberta.worker.AbstractValidatorAndCollectorWorker;
@@ -25,7 +24,7 @@ public class OrbValidatorAndCollectorWorker extends AbstractValidatorAndCollecto
 
 
 	@Override
-	protected CommonNepoValidatorAndCollectorVisitor getVisitor(Project project, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
+	protected CommonNepoValidatorAndCollectorVisitor getVisitor(Project project, ClassToInstanceMap<IProjectBean.IBuilder> beanBuilders) {
 		return new OrbValidatorAndCollectorVisitor(project.getConfigurationAst(), beanBuilders);
 	}
 
@@ -46,20 +45,20 @@ public class OrbValidatorAndCollectorWorker extends AbstractValidatorAndCollecto
 		List<String> takenPortsMotor = new ArrayList<>();
 		List<String> takenPortsSensor = new ArrayList<>();
 		for ( ConfigurationComponent component : configComponents.values() ) {
-			if ( component.getComponentType().equals(SC.DIFFERENTIALDRIVE) ) {
+			if ( component.componentType.equals(SC.DIFFERENTIALDRIVE) ) {
 				if (component.getOptProperty("MOTOR_R").equals(component.getOptProperty("MOTOR_L"))){
 					duplicatedPorts(project, component);
 					break;
 				}
 			}
-			if ( component.getComponentType().equals(SC.MOTOR) ){
+			if ( component.componentType.equals(SC.MOTOR) ){
 				if (takenPortsMotor.contains(component.getOptProperty(SC.MOTOR))){
 					duplicatedPorts(project, component);
 					break;
 				}
 				takenPortsMotor.add(component.getOptProperty(SC.MOTOR));
 			}
-			if (sensors.contains(component.getComponentType())){
+			if (sensors.contains(component.componentType)){
 				if (takenPortsSensor.contains(component.getOptProperty("CONNECTOR"))){
 					duplicatedPorts(project, component);
 					break;

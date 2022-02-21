@@ -525,7 +525,7 @@ define(["require", "exports", "simulation.scene", "simulation.constants", "util"
         interpreters = programs.map(function (x) {
             var src = JSON.parse(x.javaScriptProgram);
             configurations.push(x.configuration.SENSORS);
-            return new SIM_I.Interpreter(src, new MBED_R.RobotMbedBehaviour(), callbackOnTermination, breakpoints);
+            return new SIM_I.Interpreter(src, configuration, new MBED_R.RobotMbedBehaviour(), callbackOnTermination, breakpoints);
         });
         updateDebugMode(debugMode);
         isDownRobots = [];

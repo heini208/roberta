@@ -14,25 +14,25 @@ import de.fhg.iais.roberta.visitor.hardware.actor.IActors4AutonomousDriveRobots;
 
 public interface IOrbVisitor<V> extends IActors4AutonomousDriveRobots<V>{
 
-    V visitKeysSensor(KeysSensor<V> keysSensor);
+    V visitKeysSensor(KeysSensor keysSensor);
 
-    V visitColorSensor(ColorSensor<V> colorSensor);
+    V visitColorSensor(ColorSensor colorSensor);
 
-    V visitEncoderSensor(EncoderSensor<V> encoderSensor);
+    V visitEncoderSensor(EncoderSensor encoderSensor);
 
-    V visitGyroSensor(GyroSensor<V> gyroSensor);
+    V visitGyroSensor(GyroSensor gyroSensor);
 
-    V visitInfraredSensor(InfraredSensor<V> infraredSensor);
+    V visitInfraredSensor(InfraredSensor infraredSensor);
 
-    V visitTimerSensor(TimerSensor<V> timerSensor);
+    V visitTimerSensor(TimerSensor timerSensor);
 
-    V visitTouchSensor(TouchSensor<V> touchSensor);
+    V visitTouchSensor(TouchSensor touchSensor);
 
-    V visitUltrasonicSensor(UltrasonicSensor<V> ultrasonicSensor);
+    V visitUltrasonicSensor(UltrasonicSensor ultrasonicSensor);
 
-    V visitCompassSensor(CompassSensor<V> compassSensor);
+    V visitCompassSensor(CompassSensor compassSensor);
 
-    default V visitGetSampleSensor(GetSampleSensor<V> sensorGetSample) {
-        return sensorGetSample.getSensor().accept(this);
+    default V visitGetSampleSensor(GetSampleSensor sensorGetSample) {
+        return sensorGetSample.sensor.accept(this);
     }
 }

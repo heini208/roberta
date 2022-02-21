@@ -8,7 +8,7 @@ import de.fhg.iais.roberta.worker.AbstractStackMachineGeneratorWorker;
 
 public final class OrbStackMachineGeneratorWorker extends AbstractStackMachineGeneratorWorker {
     @Override
-    protected AbstractStackMachineVisitor<Void> getVisitor(Project project, UsedHardwareBean usedHardwareBean) {
-        return new OrbStackMachineVisitor<>(project.getConfigurationAst(), project.getProgramAst().getTree(), project.getLanguage());
+    protected AbstractStackMachineVisitor getVisitor(Project project, UsedHardwareBean usedHardwareBean) {
+        return new OrbStackMachineVisitor(project.getConfigurationAst(), project.getProgramAst().getTree(), project.getLanguage());
     }
 }
