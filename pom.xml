@@ -50,6 +50,7 @@
         <module>RobotEdison</module>
         <module>OpenRobertaServer</module>
         <module>RobotCyberpi</module>
+        <module>RobotRobotino</module>
     </modules>
     <repositories>
         <repository>
@@ -132,6 +133,11 @@
             <dependency>
                 <groupId>de.fhg.iais.openroberta</groupId>
                 <artifactId>RobotCyberpi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhg.iais.openroberta</groupId>
+                <artifactId>RobotRobotino</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

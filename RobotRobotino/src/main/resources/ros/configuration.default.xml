@@ -1,0 +1,8 @@
+<block_set xmlns="http://de.fhg.iais.roberta.blockly" robottype="mbot2" xmlversion="3.1" description="" tags="">
+    <instance x="100" y="120">
+        <block type="robConf_encoder" intask="true" id="3" deletable="false">
+            <field name="NAME">R</field>
+            <field name="PORT1">EM2</field>
+        </block>
+    </instance>
+</block_set>
