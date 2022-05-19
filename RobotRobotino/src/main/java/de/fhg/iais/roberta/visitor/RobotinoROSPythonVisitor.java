@@ -1,9 +1,13 @@
 package de.fhg.iais.roberta.visitor;
 
 import com.google.common.collect.ClassToInstanceMap;
+import de.fhg.iais.roberta.bean.CodeGeneratorSetupBean;
 import de.fhg.iais.roberta.bean.IProjectBean;
+import de.fhg.iais.roberta.bean.UsedHardwareBean;
 import de.fhg.iais.roberta.components.ConfigurationAst;
 import de.fhg.iais.roberta.syntax.Phrase;
+import de.fhg.iais.roberta.syntax.SC;
+import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
 import de.fhg.iais.roberta.syntax.action.display.ClearDisplayAction;
 import de.fhg.iais.roberta.syntax.action.display.ShowTextAction;
 import de.fhg.iais.roberta.syntax.action.light.LightAction;
@@ -22,9 +26,11 @@ import de.fhg.iais.roberta.syntax.action.sound.ToneAction;
 import de.fhg.iais.roberta.syntax.action.sound.VolumeAction;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
 import de.fhg.iais.roberta.syntax.lang.expr.ConnectConst;
+import de.fhg.iais.roberta.syntax.lang.stmt.StmtList;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
 import de.fhg.iais.roberta.syntax.sensor.generic.TimerSensor;
+import de.fhg.iais.roberta.syntax.sensor.generic.TouchSensor;
 import de.fhg.iais.roberta.visitor.lang.codegen.prog.AbstractPythonVisitor;
 
 import java.util.List;
@@ -48,6 +54,80 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
         this.configurationAst = configurationAst;
     }
 
+    @Override
+    protected void generateProgramPrefix(boolean withWrapping) {
+        this.sb.append("import rospy");
+        nlIndent();
+        this.sb.append("import math, random");
+        nlIndent();
+        //nur generieren wenn diese messages verwendet werden
+        this.sb.append("from geometry_msgs.msg import Twist\n" +
+                "from std_msgs.msg import Bool");
+        nlIndent();
+        nlIndent();
+        this.sb.append("rospy.init_node('robotino_go', anonymous=True)");
+        nlIndent();
+        this.sb.append("_motorPub = rospy.Publisher('cmd_vel_repeating', Twist, queue_size=10)");
+        nlIndent();
+        this.sb.append("_twist = Twist()");
+
+        nlIndent();
+
+
+        if (!this.getBean(CodeGeneratorSetupBean.class).getUsedMethods().isEmpty()) {
+            String helperMethodImpls =
+                    this.getBean(CodeGeneratorSetupBean.class)
+                            .getHelperMethodGenerator()
+                            .getHelperMethodDefinitions(this.getBean(CodeGeneratorSetupBean.class).getUsedMethods());
+            this.sb.append(helperMethodImpls);
+        }
+    }
+
+    @Override
+    public Void visitMainTask(MainTask<Void> mainTask) {
+        StmtList<Void> variables = mainTask.getVariables();
+        variables.accept(this);
+        generateUserDefinedMethods();
+        nlIndent();
+        this.sb.append("def run():");
+        incrIndentation();
+        nlIndent();
+        this.sb.append("global _twist, _motorPub");
+        if (!this.usedGlobalVarInFunctions.isEmpty()) {
+            nlIndent();
+            this.sb.append("global ").append(String.join(", ", this.usedGlobalVarInFunctions));
+        }
+        nlIndent();
+        return null;
+    }
+
+    @Override
+    protected void generateProgramSuffix(boolean withWrapping) {
+        if (!withWrapping) {
+            return;
+        }
+        decrIndentation(); // everything is still indented from main program
+        nlIndent();
+        nlIndent();
+        this.sb.append("def main():");
+        incrIndentation();
+        nlIndent();
+        this.sb.append("try:");
+        incrIndentation();
+        nlIndent();
+        this.sb.append("run()");
+        decrIndentation();
+        nlIndent();
+        this.sb.append("except Exception as e:");
+        incrIndentation();
+        nlIndent();
+        this.sb.append("raise");
+        decrIndentation();
+        decrIndentation();
+        nlIndent();
+
+        this.sb.append("main()");
+    }
 
     @Override
     public Void visitDriveAction(DriveAction<Void> driveAction) {
@@ -134,10 +214,6 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
         return null;
     }
 
-    @Override
-    public Void visitMainTask(MainTask<Void> mainTask) {
-        return null;
-    }
 
     @Override
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
@@ -152,13 +228,44 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     @Override
     public Void visitWaitTimeStmt(WaitTimeStmt<Void> waitTimeStmt) {
         this.sb.append("rospy.sleep(");
-        waitTimeStmt.accept(this);
+        waitTimeStmt.getTime().accept(this);
         this.sb.append("/1000)");
         return null;
     }
 
-    @Override
-    protected void generateProgramPrefix(boolean withWrapping) {
 
+    @Override
+    public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
+        this.sb.append("rospy.wait_for_message(\"bumper\", Bool)");
+        return null;
+    }
+
+    @Override
+    public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
+        if (omnidriveAction.velType.equals("LINEAR_VEL")) {
+            this.sb.append("_twist.linear.x = ");
+            omnidriveAction.xVel.accept(this);
+            nlIndent();
+            this.sb.append("_twist.linear.y = ");
+            omnidriveAction.yVel.accept(this);
+            nlIndent();
+            this.sb.append("_twist.linear.z = ");
+            omnidriveAction.zVel.accept(this);
+            nlIndent();
+        } else if (omnidriveAction.velType.equals("ANGULAR_VEL")) {
+            this.sb.append("_twist.angular.x = ");
+            omnidriveAction.xVel.accept(this);
+            nlIndent();
+            this.sb.append("_twist.angular.y = ");
+            omnidriveAction.yVel.accept(this);
+            nlIndent();
+            this.sb.append("_twist.angular.z = ");
+            omnidriveAction.zVel.accept(this);
+            nlIndent();
+        }
+
+        this.sb.append("_motorpub.publish(_twist)");
+        //this.sb.append(omnidriveAction.velType);
+        return null;
     }
 }

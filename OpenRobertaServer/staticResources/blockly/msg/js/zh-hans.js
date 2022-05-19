@@ -29,6 +29,7 @@ Blockly.Msg.ACTION_LCD_MBOT2_BRUSH_TOOLTIP = "Change the color of the next displ
 Blockly.Msg.ACTION_LED = "LED灯";
 Blockly.Msg.ACTION_MOTOR = "电机";
 Blockly.Msg.ACTION_OLEDSSD1306I2C = "OLED SSD1306 I²C";  // untranslated
+Blockly.Msg.ACTION_OMNIDRIVE = "omnidrive";  // untranslated
 Blockly.Msg.ACTION_PLAY = "演示";
 Blockly.Msg.ACTION_PLAY_RECORDING_TOOLTIP = "Plays your last recorded sounds.";  // untranslated
 Blockly.Msg.ACTION_PLOTTING = "plot";  // untranslated

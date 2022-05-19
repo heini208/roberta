@@ -1,7 +1,12 @@
 include: "classpath:/robotCommon.yml"
 block:
+  MOTOR_OMNIDRIVE_ACTION:
+    category: ACTOR
+    implementor: de.fhg.iais.roberta.syntax.action.OmnidriveAction
+    type: [ robActions_motor_omnidrive ]
 
 configuration:
+  OMNIDRIVE: [ robConf_omnidrive ]
 
 mode:
 
