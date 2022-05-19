@@ -29,6 +29,7 @@ Blockly.Msg.ACTION_LCD_MBOT2_BRUSH_TOOLTIP = "Wechsle die Farbe der nächsten Di
 Blockly.Msg.ACTION_LED = "LED";
 Blockly.Msg.ACTION_MOTOR = "Motor";
 Blockly.Msg.ACTION_OLEDSSD1306I2C = "OLED SSD1306 I²C";  // untranslated
+Blockly.Msg.ACTION_OMNIDRIVE = "omnidrive";  // untranslated
 Blockly.Msg.ACTION_PLAY = "Spiele";
 Blockly.Msg.ACTION_PLAY_RECORDING_TOOLTIP = "Spielt deine zuletzt aufgenommenen Töne.";
 Blockly.Msg.ACTION_PLOTTING = "Zeichne";

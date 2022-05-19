@@ -18,15 +18,4 @@ public class RobotinoValidatorAndCollectorWorker extends AbstractValidatorAndCol
         return new RobotinoValidatorAndCollectorVisitor(project.getConfigurationAst(), beanBuilders);
     }
 
-    @Override
-    protected List<Class<? extends Enum<?>>> getAdditionalMethodEnums() {
-        //return Collections.singletonList(Mbot2Methods.class);
-        return null;
-    }
-
-    @Override
-    public void execute(Project project) {
-        super.execute(project);
-    }
-
 }

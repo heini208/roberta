@@ -1,45 +1,27 @@
 <toolbox_set id="toolboxBeginner" style="display: none">
     <category name="TOOLBOX_ACTION" svg="true">
-        <block type="robActions_motorDiff_on">
-            <value name="POWER">
+        <block type="robActions_motor_omnidrive">
+            <value name="X">
                 <block type="math_number">
                     <field name="NUM">30</field>
                 </block>
             </value>
-        </block>
-        <block type="robActions_motorDiff_stop"/>
-        <block type="robActions_motorDiff_turn_for">
-            <value name="POWER">
+            <value name="Y">
                 <block type="math_number">
-                    <field name="NUM">30</field>
+                    <field name="NUM">0</field>
                 </block>
             </value>
-            <value name="DEGREE">
+            <value name="Z">
                 <block type="math_number">
-                    <field name="NUM">20</field>
-                </block>
-            </value>
-        </block>
-        <block type="robActions_motorDiff_turn">
-            <value name="POWER">
-                <block type="math_number">
-                    <field name="NUM">30</field>
+                    <field name="NUM">0</field>
                 </block>
             </value>
         </block>
     </category>
     <category name="TOOLBOX_SENSOR" svg="true">
-        <block type="robSensors_ultrasonic_getSample"/>
-        <block type="robSensors_quadrgb_getSample"/>
-        <block type="robSensors_sound_getSample"/>
-        <block type="robSensors_joystickKeys_getSample"/>
-        <block type="robSensors_key_getSample"/>
-        <block type="robSensors_gyro_getSample"/>
-        <block type="robSensors_gyro_reset_axis"/>
         <block type="robSensors_timer_getSample"/>
         <block type="robSensors_timer_reset"/>
-        <block type="robSensors_encoder_getSample"/>
-        <block type="robSensors_encoder_reset"/>
+        <block type="robSensors_touch_getSample"/>
     </category>
     <category name="TOOLBOX_CONTROL" svg="true">
         <block type="robControls_if"/>
@@ -63,10 +45,10 @@
             <value name="WAIT0">
                 <block type="logic_compare">
                     <value name="A">
-                        <block type="robSensors_getSample"/>
+                        <block type="robSensors_touch_getSample"></block>
                     </value>
                     <value name="B">
-                        <block type="logic_boolean"/>
+                        <block type="logic_boolean"></block>
                     </value>
                 </block>
             </value>
