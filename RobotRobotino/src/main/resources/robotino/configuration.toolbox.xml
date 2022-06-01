@@ -1,4 +1,6 @@
 <toolbox_set id="toolbox-Configuration" style="display: none">
     <category name="TOOLBOX_SENSOR" svg="true">
+        <block type="robConf_analogout"></block>
+        <block type="robConf_digitalout"></block>
     </category>
 </toolbox_set>
