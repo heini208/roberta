@@ -8,6 +8,7 @@ import de.fhg.iais.roberta.components.ConfigurationAst;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.SC;
 import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
+import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.display.ClearDisplayAction;
 import de.fhg.iais.roberta.syntax.action.display.ShowTextAction;
 import de.fhg.iais.roberta.syntax.action.light.LightAction;
@@ -29,6 +30,9 @@ import de.fhg.iais.roberta.syntax.lang.expr.ConnectConst;
 import de.fhg.iais.roberta.syntax.lang.stmt.StmtList;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
+import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
+import de.fhg.iais.roberta.syntax.sensor.generic.InfraredSensor;
+import de.fhg.iais.roberta.syntax.sensor.generic.PinGetValueSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TimerSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TouchSensor;
 import de.fhg.iais.roberta.visitor.lang.codegen.prog.AbstractPythonVisitor;
@@ -242,30 +246,41 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
     @Override
     public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
-        if (omnidriveAction.velType.equals("LINEAR_VEL")) {
-            this.sb.append("_twist.linear.x = ");
-            omnidriveAction.xVel.accept(this);
-            nlIndent();
-            this.sb.append("_twist.linear.y = ");
-            omnidriveAction.yVel.accept(this);
-            nlIndent();
-            this.sb.append("_twist.linear.z = ");
-            omnidriveAction.zVel.accept(this);
-            nlIndent();
-        } else if (omnidriveAction.velType.equals("ANGULAR_VEL")) {
-            this.sb.append("_twist.angular.x = ");
-            omnidriveAction.xVel.accept(this);
-            nlIndent();
-            this.sb.append("_twist.angular.y = ");
-            omnidriveAction.yVel.accept(this);
-            nlIndent();
-            this.sb.append("_twist.angular.z = ");
-            omnidriveAction.zVel.accept(this);
-            nlIndent();
-        }
+        this.sb.append("_twist.linear.x = ");
+        omnidriveAction.xVel.accept(this);
+        nlIndent();
+        this.sb.append("_twist.linear.y = ");
+        omnidriveAction.yVel.accept(this);
+        nlIndent();
+        this.sb.append("_twist.angular.z = ");
+        omnidriveAction.thetaVel.accept(this);
+        nlIndent();
 
         this.sb.append("_motorpub.publish(_twist)");
-        //this.sb.append(omnidriveAction.velType);
+        nlIndent();
+        return null;
+    }
+
+    @Override
+    public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
+        this.sb.append("POSITIONGENERATEDTEXT");
+        return null;
+    }
+
+    @Override
+    public Void visitOdometryPositionSensor(OdometryPosition<Void> odometryPosition) {
+        return null;
+    }
+
+    @Override
+    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
+        this.sb.append("PINVALUE");
+        return null;
+    }
+
+    @Override
+    public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
+        this.sb.append(infraredSensor.getUserDefinedPort());
         return null;
     }
 }

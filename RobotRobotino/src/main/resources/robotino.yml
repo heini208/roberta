@@ -3,7 +3,17 @@ block:
   MOTOR_OMNIDRIVE_ACTION:
     category: ACTOR
     implementor: de.fhg.iais.roberta.syntax.action.OmnidriveAction
-    type: [ robActions_motor_omnidrive ]
+    type: [ robActions_motorOmni_curve, robActions_motorOmni_curve_for ]
+
+  MOTOR_OMNIDRIVE_POSITION_ACTION:
+    category: ACTOR
+    implementor: de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction
+    type: [ robActions_motorOmni_position ]
+
+  ODOMETRY_SENSING:
+    category: SENSOR
+    implementor: de.fhg.iais.roberta.syntax.sensor.OdometryPosition
+    type: [ robSensors_odometry_getSample ]
 
 configuration:
   OMNIDRIVE: [ robConf_omnidrive ]
