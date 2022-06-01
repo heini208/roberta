@@ -5,6 +5,7 @@ import de.fhg.iais.roberta.bean.IProjectBean;
 import de.fhg.iais.roberta.components.ConfigurationAst;
 
 import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
+import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.display.ClearDisplayAction;
 import de.fhg.iais.roberta.syntax.action.display.ShowTextAction;
 import de.fhg.iais.roberta.syntax.action.light.LightAction;
@@ -19,6 +20,7 @@ import de.fhg.iais.roberta.syntax.action.sound.PlayNoteAction;
 import de.fhg.iais.roberta.syntax.action.sound.ToneAction;
 import de.fhg.iais.roberta.syntax.action.sound.VolumeAction;
 
+import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
 import de.fhg.iais.roberta.syntax.sensor.generic.*;
 
 import de.fhg.iais.roberta.visitor.validate.DifferentialMotorValidatorAndCollectorVisitor;
@@ -84,6 +86,26 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
+        return null;
+    }
+
+    @Override
+    public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
+        return null;
+    }
+
+    @Override
+    public Void visitOdometryPositionSensor(OdometryPosition<Void> odometryPosition) {
+        return null;
+    }
+
+    @Override
+    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
+        return null;
+    }
+
+    @Override
+    public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
         return null;
     }
 
