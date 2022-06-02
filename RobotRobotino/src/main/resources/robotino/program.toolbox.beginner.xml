@@ -56,6 +56,14 @@
                 </block>
             </value>
         </block>
+        <block type="robActions_motorDiff_stop"></block>
+        <block type="robActions_write_pin">
+            <value name="VALUE">
+                <block type="math_number">
+                    <field name="NUM">1</field>
+                </block>
+            </value>
+        </block>
     </category>
     <category name="TOOLBOX_SENSOR" svg="true">
         <block type="robSensors_touch_getSample"></block>
@@ -63,6 +71,7 @@
         <block type="robSensors_timer_reset"></block>
         <block type="robSensors_infrared_getSample"></block>
         <block type="robSensors_odometry_getSample"></block>
+        <block type="robSensors_odometry_reset"></block>
         <block type="robSensors_out_getSample"></block>
     </category>
     <category name="TOOLBOX_CONTROL" svg="true">
