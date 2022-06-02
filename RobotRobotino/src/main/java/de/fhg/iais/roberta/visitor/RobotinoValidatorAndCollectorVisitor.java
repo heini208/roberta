@@ -8,6 +8,7 @@ import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
 import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.display.ClearDisplayAction;
 import de.fhg.iais.roberta.syntax.action.display.ShowTextAction;
+import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
 import de.fhg.iais.roberta.syntax.action.light.LightAction;
 import de.fhg.iais.roberta.syntax.action.light.LightStatusAction;
 
@@ -21,6 +22,7 @@ import de.fhg.iais.roberta.syntax.action.sound.ToneAction;
 import de.fhg.iais.roberta.syntax.action.sound.VolumeAction;
 
 import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
+import de.fhg.iais.roberta.syntax.sensor.OdometryReset;
 import de.fhg.iais.roberta.syntax.sensor.generic.*;
 
 import de.fhg.iais.roberta.visitor.validate.DifferentialMotorValidatorAndCollectorVisitor;
@@ -95,7 +97,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitOdometryPositionSensor(OdometryPosition<Void> odometryPosition) {
+    public Void visitOdometryPosition(OdometryPosition<Void> odometryPosition) {
         return null;
     }
 
@@ -106,6 +108,16 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
+        return null;
+    }
+
+    @Override
+    public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
+        return null;
+    }
+
+    @Override
+    public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
         return null;
     }
 
