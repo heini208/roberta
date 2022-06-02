@@ -5,12 +5,14 @@ import de.fhg.iais.roberta.bean.CodeGeneratorSetupBean;
 import de.fhg.iais.roberta.bean.IProjectBean;
 import de.fhg.iais.roberta.bean.UsedHardwareBean;
 import de.fhg.iais.roberta.components.ConfigurationAst;
+import de.fhg.iais.roberta.components.ConfigurationComponent;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.SC;
 import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
 import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.display.ClearDisplayAction;
 import de.fhg.iais.roberta.syntax.action.display.ShowTextAction;
+import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
 import de.fhg.iais.roberta.syntax.action.light.LightAction;
 import de.fhg.iais.roberta.syntax.action.light.LightStatusAction;
 import de.fhg.iais.roberta.syntax.action.motor.MotorGetPowerAction;
@@ -27,10 +29,12 @@ import de.fhg.iais.roberta.syntax.action.sound.ToneAction;
 import de.fhg.iais.roberta.syntax.action.sound.VolumeAction;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
 import de.fhg.iais.roberta.syntax.lang.expr.ConnectConst;
+import de.fhg.iais.roberta.syntax.lang.expr.EmptyExpr;
 import de.fhg.iais.roberta.syntax.lang.stmt.StmtList;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
 import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
+import de.fhg.iais.roberta.syntax.sensor.OdometryReset;
 import de.fhg.iais.roberta.syntax.sensor.generic.InfraredSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.PinGetValueSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TimerSensor;
@@ -150,6 +154,10 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
+        this.sb.append("_twist = Twist()");
+        nlIndent();
+        this.sb.append("_motorpub.publish(_twist)");
+        nlIndent();
         return null;
     }
 
@@ -221,6 +229,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
     @Override
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
+        this.sb.append("timerPlaceHolder");
         return null;
     }
 
@@ -258,29 +267,49 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
         this.sb.append("_motorpub.publish(_twist)");
         nlIndent();
+
+        if (!(omnidriveAction.distance instanceof EmptyExpr)) {
+            this.sb.append("checkdistancePLACEHOLDER");
+        }
         return null;
     }
 
     @Override
     public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
-        this.sb.append("POSITIONGENERATEDTEXT");
+        this.sb.append("DriveToPositionPlaceHolder");
         return null;
     }
 
     @Override
-    public Void visitOdometryPositionSensor(OdometryPosition<Void> odometryPosition) {
+    public Void visitOdometryPosition(OdometryPosition<Void> odometryPosition) {
+        this.sb.append("Odometry position : slot" + odometryPosition.slot + " port" + odometryPosition.port);
         return null;
     }
 
     @Override
     public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
-        this.sb.append("PINVALUE");
+        this.sb.append("PINVALUE ");
+        this.sb.append("port: " + configurationAst.getConfigurationComponent(pinGetValueSensor.getUserDefinedPort()).getComponentProperties().get("OUTPUT"));
+
         return null;
     }
 
     @Override
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        this.sb.append(infraredSensor.getUserDefinedPort());
+        this.sb.append(infraredSensor.getUserDefinedPort() + "infrared placeholder");
+        return null;
+    }
+
+    @Override
+    public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
+        this.sb.append("odometryReset");
+        return null;
+    }
+
+    @Override
+    public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
+        this.sb.append("writeToPin: " + pinWriteValueAction.getValue() + " name: " + pinWriteValueAction.getPort() + " mode: " + pinWriteValueAction.getMode());
+        this.sb.append("port: DQ" + configurationAst.getConfigurationComponent(pinWriteValueAction.getPort()).getComponentProperties().get("INPUT"));
         return null;
     }
 }

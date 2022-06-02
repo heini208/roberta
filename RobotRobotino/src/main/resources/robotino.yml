@@ -15,6 +15,11 @@ block:
     implementor: de.fhg.iais.roberta.syntax.sensor.OdometryPosition
     type: [ robSensors_odometry_getSample ]
 
+  ODOMETRY_RESET:
+    category: SENSOR
+    implementor: de.fhg.iais.roberta.syntax.sensor.OdometryReset
+    type: [ robSensors_odometry_reset ]
+
 configuration:
   OMNIDRIVE: [ robConf_omnidrive ]
 
