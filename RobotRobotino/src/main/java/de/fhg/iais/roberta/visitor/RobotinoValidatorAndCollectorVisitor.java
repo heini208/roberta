@@ -4,6 +4,10 @@ import com.google.common.collect.ClassToInstanceMap;
 import de.fhg.iais.roberta.bean.IProjectBean;
 import de.fhg.iais.roberta.components.ConfigurationAst;
 
+import de.fhg.iais.roberta.components.UsedActor;
+import de.fhg.iais.roberta.components.UsedSensor;
+import de.fhg.iais.roberta.constants.RobotinoConstants;
+import de.fhg.iais.roberta.syntax.SC;
 import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
 import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.display.ClearDisplayAction;
@@ -25,7 +29,6 @@ import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
 import de.fhg.iais.roberta.syntax.sensor.OdometryReset;
 import de.fhg.iais.roberta.syntax.sensor.generic.*;
 
-import de.fhg.iais.roberta.visitor.validate.DifferentialMotorValidatorAndCollectorVisitor;
 import de.fhg.iais.roberta.visitor.validate.MotorValidatorAndCollectorVisitor;
 
 
@@ -34,7 +37,6 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     public RobotinoValidatorAndCollectorVisitor(ConfigurationAst robotConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
         super(robotConfiguration, beanBuilders);
     }
-
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
@@ -78,26 +80,42 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(timerSensor.getUserDefinedPort(), SC.TIMER, timerSensor.getMode()));
         return null;
     }
 
     @Override
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(touchSensor.getUserDefinedPort(), SC.TOUCH, touchSensor.getMode()));
         return null;
     }
 
     @Override
     public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
+        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+
+        requiredComponentVisited(omnidriveAction, omnidriveAction.xVel);
+        requiredComponentVisited(omnidriveAction, omnidriveAction.yVel);
+        requiredComponentVisited(omnidriveAction, omnidriveAction.thetaVel);
+
+
         return null;
     }
 
     @Override
     public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
+        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
         return null;
     }
 
     @Override
     public Void visitOdometryPosition(OdometryPosition<Void> odometryPosition) {
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(odometryPosition.getUserDefinedPort(), RobotinoConstants.ODOMETRY, odometryPosition.slot));
+        if (odometryPosition.slot.equals("THETA")) {
+            usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
+        }
         return null;
     }
 
@@ -113,11 +131,15 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
         return null;
     }
 
     @Override
     public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
+        usedHardwareBuilder.addUsedActor(new UsedActor("", SC.DIGITAL_PIN));
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.SETDIGITALPIN);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.RESETDIGITALPIN);
         return null;
     }
 
@@ -138,6 +160,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
+        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
         return null;
     }
 }
