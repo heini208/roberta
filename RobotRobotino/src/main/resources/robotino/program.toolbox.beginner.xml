@@ -59,8 +59,8 @@
         <block type="robActions_motorDiff_stop"></block>
         <block type="robActions_write_pin">
             <value name="VALUE">
-                <block type="math_number">
-                    <field name="NUM">1</field>
+                <block type="logic_boolean">
+                    <field name="BOOL">TRUE</field>
                 </block>
             </value>
         </block>
