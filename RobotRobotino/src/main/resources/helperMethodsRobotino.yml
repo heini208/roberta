@@ -1,0 +1,38 @@
+include: "classpath:/common.methods.yml"
+
+## FunctionNames
+
+OMNIDRIVESPEED:
+  PYTHON: |
+    def _setSpeedOmnidrive(x, y, z):
+        _twist = Twist()
+        _twist.linear.x = 1 / 100 * x
+        _twist.linear.y = 1 / 100 * y
+        _twist.angular.z = 1 / 100 * z
+        _motorPub.publish(_twist)
+
+SETDIGITALPIN:
+  PYTHON: |
+    def _setDigitalPin(pos, value):
+        digitalReadings = DigitalReadings()
+        _dqValues[pos-1] = value
+        digitalReadings.stamp = rospy.Time.now()
+        digitalReadings.values = _dqValues
+        _digitalPinPub.publish(digitalReadings)
+
+RESETDIGITALPIN:
+  PYTHON: |
+    def _resetDigitalPins():
+        _dqValues = [False for i in range(8)]
+        digitalReadings = DigitalReadings()
+        digitalReadings.stamp = rospy.Time.now()
+        digitalReadings.values = _dqValues
+        _digitalPinPub.publish(digitalReadings)
+
+GETORIENTATION:
+  PYTHON: |
+    def _getOrientation():
+        yaw_z = 2 * math.acos(rospy.wait_for_message("odom", Odometry).pose.pose.orientation.w) * 180 / math.pi 
+        if rospy.wait_for_message("odom", Odometry).pose.pose.orientation.z < 0: 
+            yaw_z *= -1 
+        return yaw_z
