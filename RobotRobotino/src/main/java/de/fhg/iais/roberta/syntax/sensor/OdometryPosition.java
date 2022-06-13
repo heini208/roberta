@@ -35,7 +35,7 @@ public class OdometryPosition<V> extends Sensor<V> implements WithUserDefinedPor
      * @return read only object of class {@link OdometryPosition}
      */
     public static <V> OdometryPosition<V> make(SensorMetaDataBean sensorMetaDataBean, BlocklyBlockProperties properties, BlocklyComment comment) {
-        return new OdometryPosition<>(BlockTypeContainer.getByName("JOYSTICK_SENSING"), properties, comment, sensorMetaDataBean.getPort(), sensorMetaDataBean.getSlot(), null);
+        return new OdometryPosition<>(BlockTypeContainer.getByName("ODOMETRY_SENSING"), properties, comment, sensorMetaDataBean.getPort(), sensorMetaDataBean.getSlot(), null);
     }
 
     @Override

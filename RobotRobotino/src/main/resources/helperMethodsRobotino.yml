@@ -36,3 +36,10 @@ GETORIENTATION:
         if rospy.wait_for_message("odom", Odometry).pose.pose.orientation.z < 0: 
             yaw_z *= -1 
         return yaw_z
+
+GETDISTANCE:
+  PYTHON: |
+    def _getDistance(port):
+        point = rospy.wait_for_message("distance_sensors", PointCloud).points[port].x
+        distance = (point - 0.2 ) / math.cos(0.698 * port)  
+        return distance

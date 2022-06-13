@@ -8,10 +8,20 @@ import de.fhg.iais.roberta.transformer.NepoPhrase;
 import de.fhg.iais.roberta.util.dbc.Assert;
 
 @NepoPhrase(containerType = "ODOMETRY_RESET")
-public class OdometryReset<V> extends Sensor<V> {
+public class OdometryReset<V> extends Sensor<V> implements WithUserDefinedPort<V> {
+    @NepoField(name = BlocklyConstants.SENSORPORT, value = BlocklyConstants.EMPTY_PORT)
+    public final String port;
+    @NepoField(name = BlocklyConstants.SLOT, value = BlocklyConstants.EMPTY_SLOT)
+    public final String slot;
+    @NepoHide
+    public final Hide hide;
 
-    public OdometryReset(BlockType kind, BlocklyBlockProperties properties, BlocklyComment comment) {
+    public OdometryReset(BlockType kind, BlocklyBlockProperties properties, BlocklyComment comment, String port, String slot, Hide hide) {
         super(kind, properties, comment);
+        Assert.nonEmptyString(port);
+        this.port = port;
+        this.slot = slot;
+        this.hide = hide;
         setReadOnly();
     }
 
@@ -22,8 +32,12 @@ public class OdometryReset<V> extends Sensor<V> {
      * @param comment    added from the user,
      * @return read only object of class {@link OdometryReset}
      */
-    public static <V> OdometryReset<V> make(BlocklyBlockProperties properties, BlocklyComment comment) {
-        return new OdometryReset<>(BlockTypeContainer.getByName("JOYSTICK_SENSING"), properties, comment);
+    public static <V> OdometryReset<V> make(BlocklyBlockProperties properties, BlocklyComment comment, String port, String slot, Hide hide) {
+        return new OdometryReset<>(BlockTypeContainer.getByName("ODOMETRY_RESET"), properties, comment, port, slot, hide);
     }
 
+    @Override
+    public String getUserDefinedPort() {
+        return this.port;
+    }
 }

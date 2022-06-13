@@ -111,6 +111,13 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
+    public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETDISTANCE);
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(infraredSensor.getUserDefinedPort(), SC.INFRARED, infraredSensor.getMode()));
+        return null;
+    }
+
+    @Override
     public Void visitOdometryPosition(OdometryPosition<Void> odometryPosition) {
         usedHardwareBuilder.addUsedSensor(new UsedSensor(odometryPosition.getUserDefinedPort(), RobotinoConstants.ODOMETRY, odometryPosition.slot));
         if (odometryPosition.slot.equals("THETA")) {
@@ -120,18 +127,8 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
-        return null;
-    }
-
-    @Override
-    public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        return null;
-    }
-
-    @Override
     public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(odometryReset.getUserDefinedPort(), RobotinoConstants.ODOMETRY, odometryReset.slot));
         return null;
     }
 
@@ -140,6 +137,16 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         usedHardwareBuilder.addUsedActor(new UsedActor("", SC.DIGITAL_PIN));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.SETDIGITALPIN);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.RESETDIGITALPIN);
+        return null;
+    }
+
+    @Override
+    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
+        if (pinGetValueSensor.getMode().equals(SC.ANALOG)) {
+            usedHardwareBuilder.addUsedSensor(new UsedSensor(pinGetValueSensor.getUserDefinedPort(), SC.ANALOG_INPUT, pinGetValueSensor.getMode()));
+        } else if (pinGetValueSensor.getMode().equals(SC.DIGITAL)) {
+            usedHardwareBuilder.addUsedSensor(new UsedSensor(pinGetValueSensor.getUserDefinedPort(), SC.DIGITAL_INPUT, pinGetValueSensor.getMode()));
+        }
         return null;
     }
 
