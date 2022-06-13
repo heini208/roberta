@@ -91,16 +91,24 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     private void generateImports() {
-        if (this.getBean(UsedHardwareBean.class).isActorUsed(RobotinoConstants.OMNIDRIVE)) {
-            this.sb.append("from geometry_msgs.msg import Twist");
-            nlIndent();
-        }
         if (this.getBean(UsedHardwareBean.class).isSensorUsed(SC.TOUCH)) {
             this.sb.append("from std_msgs.msg import Bool");
             nlIndent();
         }
+        if (this.getBean(UsedHardwareBean.class).isActorUsed(RobotinoConstants.OMNIDRIVE)) {
+            this.sb.append("from geometry_msgs.msg import Twist");
+            nlIndent();
+        }
+        if (this.getBean(UsedHardwareBean.class).isSensorUsed(SC.INFRARED)) {
+            this.sb.append("from sensor_msgs.msg import PointCloud");
+            nlIndent();
+        }
         if (this.getBean(UsedHardwareBean.class).isActorUsed(SC.DIGITAL_PIN) || this.getBean(UsedHardwareBean.class).isSensorUsed(SC.DIGITAL_INPUT)) {
             this.sb.append("from robotino_msgs.msg import DigitalReadings");
+            nlIndent();
+        }
+        if (this.getBean(UsedHardwareBean.class).isSensorUsed(SC.ANALOG_INPUT)) {
+            this.sb.append("from robotino_msgs.msg import AnalogReadings");
             nlIndent();
         }
         if (this.getBean(UsedHardwareBean.class).isSensorUsed(RobotinoConstants.ODOMETRY)) {
@@ -137,11 +145,13 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
         }
         nlIndent();
         this.sb.append("print(\"starting roberta node...\")");
+        nlIndent();
         if (this.getBean(UsedHardwareBean.class).isSensorUsed(RobotinoConstants.ODOMETRY)) {
             this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(0, 0, 0)");
+            nlIndent();
+
         }
         //cannot immediately publish after determining publishers so waiting time is added at the beginning
-        nlIndent();
         this.sb.append("rospy.sleep(0.3)");
         nlIndent();
         nlIndent();
@@ -375,22 +385,54 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
-        this.sb.append("PINVALUE ");
-        this.sb.append("port: " + configurationAst.getConfigurationComponent(pinGetValueSensor.getUserDefinedPort()).getComponentProperties().get("OUTPUT"));
+    public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
+        switch (odometryReset.slot) {
+            case "ALL":
+                this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(0, 0, 0)");
+                break;
+            case "X":
+                this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(")
+                        .append("0, ")
+                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.y, ")
+                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.orientation)");
+                break;
+            case "Y":
+                this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(")
+                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x, ")
+                        .append("0, ")
+                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.orientation)");
+                break;
+            case "THETA":
+                this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(")
+                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x")
+                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.y, ")
+                        .append("0)");
+                break;
+            default:
+                throw new DbcException("Invalid Odometry Mode!");
 
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
+        this.sb.append("rospy.wait_for_message(");
+        if (pinGetValueSensor.getMode().equals(SC.DIGITAL)) {
+            this.sb.append("\"digital_readings\", DigitalReadings");
+        } else if (pinGetValueSensor.getMode().equals(SC.ANALOG)) {
+            this.sb.append("\"analog_readings\", AnalogReadings");
+        }
+        this.sb.append(").values[").append(configurationAst.getConfigurationComponent(pinGetValueSensor.getUserDefinedPort()).getComponentProperties().get("OUTPUT")).append("-1]");
         return null;
     }
 
     @Override
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        this.sb.append(infraredSensor.getUserDefinedPort() + "infrared placeholder");
-        return null;
-    }
-
-    @Override
-    public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
-        this.sb.append("odometryReset");
+        String port = infraredSensor.getUserDefinedPort();
+        this.sb.append("_getDistance(")
+                .append(port)
+                .append(")");
         return null;
     }
 
