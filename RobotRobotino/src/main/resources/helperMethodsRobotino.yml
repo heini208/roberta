@@ -6,8 +6,8 @@ OMNIDRIVESPEED:
   PYTHON: |
     def _setSpeedOmnidrive(x, y, z):
         _twist = Twist()
-        _twist.linear.x = 1 / 100 * x
-        _twist.linear.y = 1 / 100 * y
+        _twist.linear.x = (1 / 100 * x) * 0.5
+        _twist.linear.y = (1 / 100 * y) * 0.5 
         _twist.angular.z = 1 / 100 * z
         _motorPub.publish(_twist)
 
