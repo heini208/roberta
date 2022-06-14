@@ -64,6 +64,13 @@
                 </block>
             </value>
         </block>
+        <block type="robActions_serial_print">
+            <value name="OUT">
+                <block type="text">
+                    <field name="TEXT">Hallo</field>
+                </block>
+            </value>
+        </block>
     </category>
     <category name="TOOLBOX_SENSOR" svg="true">
         <block type="robSensors_touch_getSample"></block>
