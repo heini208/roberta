@@ -210,84 +210,9 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitDriveAction(DriveAction<Void> driveAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitCurveAction(CurveAction<Void> curveAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitTurnAction(TurnAction<Void> turnAction) {
-        return null;
-    }
-
-    @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
         this.sb.append("_motorPub.publish(Twist())");
         nlIndent();
-        return null;
-    }
-
-    @Override
-    public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitShowTextAction(ShowTextAction<Void> showTextAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitLightAction(LightAction<Void> lightAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitLightStatusAction(LightStatusAction<Void> lightStatusAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitMotorGetPowerAction(MotorGetPowerAction<Void> motorGetPowerAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitMotorStopAction(MotorStopAction<Void> motorStopAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitToneAction(ToneAction<Void> toneAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitPlayNoteAction(PlayNoteAction<Void> playNoteAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitVolumeAction(VolumeAction<Void> volumeAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitPlayFileAction(PlayFileAction<Void> playFileAction) {
         return null;
     }
 
@@ -351,7 +276,13 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
 
         if (!(omnidriveAction.distance instanceof EmptyExpr)) {
-            this.sb.append("checkdistancePLACEHOLDER");
+            this.sb.append("_driveForDistance(");
+            omnidriveAction.xVel.accept(this);
+            this.sb.append(", ");
+            omnidriveAction.yVel.accept(this);
+            this.sb.append(", ");
+            omnidriveAction.distance.accept(this);
+            this.sb.append(")");
         } else {
             this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.OMNIDRIVESPEED));
             this.sb.append("(");
@@ -367,7 +298,13 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
     @Override
     public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
-        this.sb.append("DriveToPositionPlaceHolder");
+        this.sb.append("_driveToPosition(");
+        omnidrivePositionAction.x.accept(this);
+        this.sb.append(", ");
+        omnidrivePositionAction.y.accept(this);
+        this.sb.append(", ");
+        omnidrivePositionAction.power.accept(this);
+        this.sb.append(")");
         return null;
     }
 
@@ -393,17 +330,17 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
                 this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(")
                         .append("0, ")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.y, ")
-                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.orientation)");
+                        .append("_getOrientation() * (math.pi / 180))");
                 break;
             case "Y":
                 this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x, ")
                         .append("0, ")
-                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.orientation)");
+                        .append("_getOrientation() * (math.pi / 180))");
                 break;
             case "THETA":
                 this.sb.append("rospy.ServiceProxy('reset_odometry', ResetOdometry)(")
-                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x")
+                        .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x, ")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.y, ")
                         .append("0)");
                 break;
