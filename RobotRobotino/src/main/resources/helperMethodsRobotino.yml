@@ -5,28 +5,28 @@ include: "classpath:/common.methods.yml"
 OMNIDRIVESPEED:
   PYTHON: |
     def _setSpeedOmnidrive(x, y, z):
-        _twist = Twist()
-        _twist.linear.x = (1 / 100 * x) * 0.5
-        _twist.linear.y = (1 / 100 * y) * 0.5 
-        _twist.angular.z = 1 / 100 * z
-        _motorPub.publish(_twist)
+        twist = Twist()
+        twist.linear.x = (1 / 100 * x) * 0.2
+        twist.linear.y = (1 / 100 * y) * 0.2 
+        twist.angular.z = 1 / 100 * z
+        _motorPub.publish(twist)
 
 SETDIGITALPIN:
   PYTHON: |
     def _setDigitalPin(pos, value):
         digitalReadings = DigitalReadings()
-        _dqValues[pos-1] = value
+        _digitalPinValues[pos-1] = value
         digitalReadings.stamp = rospy.Time.now()
-        digitalReadings.values = _dqValues
+        digitalReadings.values = _digitalPinValues
         _digitalPinPub.publish(digitalReadings)
 
 RESETDIGITALPIN:
   PYTHON: |
     def _resetDigitalPins():
-        _dqValues = [False for i in range(8)]
+        _digitalPinValues = [False for i in range(8)]
         digitalReadings = DigitalReadings()
         digitalReadings.stamp = rospy.Time.now()
-        digitalReadings.values = _dqValues
+        digitalReadings.values = _digitalPinValues
         _digitalPinPub.publish(digitalReadings)
 
 GETORIENTATION:
@@ -40,6 +40,48 @@ GETORIENTATION:
 GETDISTANCE:
   PYTHON: |
     def _getDistance(port):
-        point = rospy.wait_for_message("distance_sensors", PointCloud).points[port].x
-        distance = (point - 0.2 ) / math.cos(0.698 * port)  
-        return distance
+        point = rospy.wait_for_message("distance_sensors", PointCloud).points[port-1].x
+        distance = (point - 0.2 ) / math.cos(0.698 * port-1)  
+        return distance * 100
+
+GETDIRECTION:
+  PYTHON: |
+    def _getDirection(xTarget, yTarget, speed):
+        vectorX = xTarget - rospy.wait_for_message("odom", Odometry).pose.pose.position.x
+        vectorY = yTarget - rospy.wait_for_message("odom", Odometry).pose.pose.position.y
+
+        absV = math.sqrt(math.pow(vectorX, 2) + math.pow(vectorY, 2))
+        maxSpeedX = (vectorX / absV)
+        maxSpeedY = (vectorY / absV)
+        return maxSpeedX * speed, maxSpeedY * speed
+
+DRIVETOPOSITION:
+  PYTHON: |
+    def _driveToPosition(xTarget, yTarget, speed):
+        speedX, speedY = _getDirection(xTarget, yTarget, speed)
+        _setSpeedOmnidrive(speedX, speedY, 0)
+        while True:
+            xPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.x
+            yPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.y
+            if xPos >= xTarget and yPos >= yTarget:
+                _setSpeedOmnidrive(0, 0, 0)
+                break
+        rospy.Rate(10).sleep()
+
+DRIVEFORDISTANCE:
+  PYTHON: |
+    def _driveForDistance(xSpeed, ySpeed, distance):
+        xStart = rospy.wait_for_message("odom", Odometry).pose.pose.position.x
+        yStart = rospy.wait_for_message("odom", Odometry).pose.pose.position.y
+        if distance < 0:
+            _setSpeedOmnidrive(-xSpeed, -ySpeed, 0)
+        else:
+           _setSpeedOmnidrive(xSpeed, ySpeed, 0)
+        while True:
+            xPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.x
+            yPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.y
+            currentDistance = math.sqrt(math.pow(xPos - xStart, 2) + math.pow(yPos - yStart, 2))
+            if currentDistance * 100 >= abs(distance):
+                _setSpeedOmnidrive(0, 0, 0)
+                break
+        rospy.Rate(10).sleep()

@@ -22,6 +22,7 @@ block:
 
 configuration:
   OMNIDRIVE: [ robConf_omnidrive ]
+  ODOMETRY: [ robConf_odometry ]
 
 mode:
 
