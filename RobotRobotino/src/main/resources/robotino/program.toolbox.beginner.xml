@@ -28,14 +28,21 @@
                     <field name="NUM">0</field>
                 </block>
             </value>
-            <value name="THETA">
-                <block type="math_number">
-                    <field name="NUM">0</field>
-                </block>
-            </value>
             <value name="DISTANCE">
                 <block type="math_number">
                     <field name="NUM">30</field>
+                </block>
+            </value>
+        </block>
+        <block type="robActions_motorDiff_turn_for">
+            <value name="POWER">
+                <block type="math_number">
+                    <field name="NUM">30</field>
+                </block>
+            </value>
+            <value name="DEGREE">
+                <block type="math_number">
+                    <field name="NUM">20</field>
                 </block>
             </value>
         </block>

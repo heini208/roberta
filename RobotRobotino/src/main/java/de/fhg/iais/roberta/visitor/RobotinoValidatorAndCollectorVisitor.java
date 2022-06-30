@@ -10,6 +10,7 @@ import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
 import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.MotorDriveStopAction;
+import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
 import de.fhg.iais.roberta.syntax.configuration.ConfigurationComponent;
 import de.fhg.iais.roberta.syntax.lang.expr.EmptyExpr;
 import de.fhg.iais.roberta.syntax.lang.expr.NumConst;
@@ -46,7 +47,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
 
-        requiredComponentVisited(omnidriveAction, omnidriveAction.xVel, omnidriveAction, omnidriveAction.yVel);
+        requiredComponentVisited(omnidriveAction, omnidriveAction.xVel, omnidriveAction.yVel);
 
         if (!(omnidriveAction.distance instanceof EmptyExpr)) {
             requiredComponentVisited(omnidriveAction, omnidriveAction.distance);
@@ -61,6 +62,36 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         return null;
     }
 
+    @Override
+    public Void visitTurnAction(TurnAction<Void> turnAction) {
+        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
+        requiredComponentVisited(turnAction, turnAction.getParam().getSpeed(), turnAction.getParam().getDuration().getValue());
+
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.TURNFORDEGREES);
+        return null;
+    }
+
+
+    @Override
+    public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
+        requiredComponentVisited(omnidrivePositionAction, omnidrivePositionAction.x,
+                omnidrivePositionAction.y, omnidrivePositionAction.power);
+
+        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
+
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVETOPOSITION);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETDIRECTION);
+
+        checkForZeroSpeed(omnidrivePositionAction, omnidrivePositionAction.power);
+        return null;
+    }
+
     private void checkIfBothZeroSpeed(OmnidriveAction<Void> omnidriveAction) {
         if (omnidriveAction.xVel.getKind().hasName("NUM_CONST") && omnidriveAction.yVel.getKind().hasName("NUM_CONST")) {
 
@@ -69,21 +100,6 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
                 addWarningToPhrase(omnidriveAction, "MOTOR_SPEED_0");
             }
         }
-    }
-
-    @Override
-    public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
-        requiredComponentVisited(omnidrivePositionAction, omnidrivePositionAction.x,
-                omnidrivePositionAction, omnidrivePositionAction.y,
-                omnidrivePositionAction, omnidrivePositionAction.power);
-
-        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
-        usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVETOPOSITION);
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETDIRECTION);
-        checkForZeroSpeed(omnidrivePositionAction, omnidrivePositionAction.power);
-        return null;
     }
 
     @Override
