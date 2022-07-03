@@ -9,37 +9,23 @@ import de.fhg.iais.roberta.components.UsedSensor;
 import de.fhg.iais.roberta.constants.RobotinoConstants;
 import de.fhg.iais.roberta.mode.action.TurnDirection;
 import de.fhg.iais.roberta.syntax.Phrase;
-import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
-import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
-import de.fhg.iais.roberta.syntax.action.display.ClearDisplayAction;
-import de.fhg.iais.roberta.syntax.action.display.ShowTextAction;
 import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
-import de.fhg.iais.roberta.syntax.action.light.LightAction;
-import de.fhg.iais.roberta.syntax.action.light.LightStatusAction;
-import de.fhg.iais.roberta.syntax.action.motor.MotorGetPowerAction;
-import de.fhg.iais.roberta.syntax.action.motor.MotorOnAction;
-import de.fhg.iais.roberta.syntax.action.motor.MotorSetPowerAction;
-import de.fhg.iais.roberta.syntax.action.motor.MotorStopAction;
-import de.fhg.iais.roberta.syntax.action.motor.differential.CurveAction;
-import de.fhg.iais.roberta.syntax.action.motor.differential.DriveAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.MotorDriveStopAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
-import de.fhg.iais.roberta.syntax.action.sound.PlayFileAction;
-import de.fhg.iais.roberta.syntax.action.sound.PlayNoteAction;
-import de.fhg.iais.roberta.syntax.action.sound.ToneAction;
-import de.fhg.iais.roberta.syntax.action.sound.VolumeAction;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveAction;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveActionDistance;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
 import de.fhg.iais.roberta.syntax.lang.expr.ConnectConst;
-import de.fhg.iais.roberta.syntax.lang.expr.EmptyExpr;
 import de.fhg.iais.roberta.syntax.lang.stmt.StmtList;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
-import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
-import de.fhg.iais.roberta.syntax.sensor.OdometryReset;
 import de.fhg.iais.roberta.syntax.sensor.generic.InfraredSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.PinGetValueSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TimerSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TouchSensor;
+import de.fhg.iais.roberta.syntax.sensor.robotino.OdometryPosition;
+import de.fhg.iais.roberta.syntax.sensor.robotino.OdometryReset;
 import de.fhg.iais.roberta.util.dbc.DbcException;
 import de.fhg.iais.roberta.util.syntax.SC;
 import de.fhg.iais.roberta.visitor.lang.codegen.prog.AbstractPythonVisitor;
@@ -133,7 +119,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
     @Override
     public Void visitMainTask(MainTask<Void> mainTask) {
-        StmtList<Void> variables = mainTask.getVariables();
+        StmtList<Void> variables = mainTask.variables;
         variables.accept(this);
         generateUserDefinedMethods();
         nlIndent();
@@ -271,7 +257,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     @Override
     public Void visitWaitTimeStmt(WaitTimeStmt<Void> waitTimeStmt) {
         this.sb.append("rospy.sleep(");
-        waitTimeStmt.getTime().accept(this);
+        waitTimeStmt.time.accept(this);
         this.sb.append("/1000)");
         return null;
     }
@@ -285,26 +271,27 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
     @Override
     public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
+        this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.OMNIDRIVESPEED));
+        this.sb.append("(");
+        omnidriveAction.xVel.accept(this);
+        this.sb.append(", ");
+        omnidriveAction.yVel.accept(this);
+        this.sb.append(", ");
+        omnidriveAction.thetaVel.accept(this);
+        this.sb.append(")");
+        return null;
+    }
 
-        if (!(omnidriveAction.distance instanceof EmptyExpr)) {
-            this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.DRIVEFORDISTANCE));
-            this.sb.append("(");
-            omnidriveAction.xVel.accept(this);
-            this.sb.append(", ");
-            omnidriveAction.yVel.accept(this);
-            this.sb.append(", ");
-            omnidriveAction.distance.accept(this);
-            this.sb.append(")");
-        } else {
-            this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.OMNIDRIVESPEED));
-            this.sb.append("(");
-            omnidriveAction.xVel.accept(this);
-            this.sb.append(", ");
-            omnidriveAction.yVel.accept(this);
-            this.sb.append(", ");
-            omnidriveAction.thetaVel.accept(this);
-            this.sb.append(")");
-        }
+    @Override
+    public Void visitOmnidriveActionDistance(OmnidriveActionDistance<Void> omnidriveActionDistance) {
+        this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.DRIVEFORDISTANCE));
+        this.sb.append("(");
+        omnidriveActionDistance.xVel.accept(this);
+        this.sb.append(", ");
+        omnidriveActionDistance.yVel.accept(this);
+        this.sb.append(", ");
+        omnidriveActionDistance.distance.accept(this);
+        this.sb.append(")");
         return null;
     }
 
@@ -325,15 +312,15 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     public Void visitTurnAction(TurnAction<Void> turnAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.TURNFORDEGREES))
                 .append("(");
-        if (turnAction.getDirection() == TurnDirection.RIGHT) {
+        if (turnAction.direction == TurnDirection.RIGHT) {
             this.sb.append("-");
         }
-        turnAction.getParam().getSpeed().accept(this);
+        turnAction.param.getSpeed().accept(this);
         this.sb.append(", ");
-        if (turnAction.getDirection() == TurnDirection.RIGHT) {
+        if (turnAction.direction == TurnDirection.RIGHT) {
             this.sb.append("-");
         }
-        turnAction.getParam().getDuration().getValue().accept(this);
+        turnAction.param.getDuration().getValue().accept(this);
         this.sb.append(")");
         return null;
     }
@@ -407,9 +394,9 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.SETDIGITALPIN))
                 .append("(")
-                .append(configurationAst.getConfigurationComponent(pinWriteValueAction.getPort()).getComponentProperties().get("INPUT"))
+                .append(configurationAst.getConfigurationComponent(pinWriteValueAction.port).getComponentProperties().get("INPUT"))
                 .append(", ");
-        pinWriteValueAction.getValue().accept(this);
+        pinWriteValueAction.value.accept(this);
         this.sb.append(")");
         return null;
     }

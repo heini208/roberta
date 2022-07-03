@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "кут";
 Blockly.Msg.MOTOR_DISTANCE = "відстань, см";
 Blockly.Msg.MOTOR_DRIVE = "їхати";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "протікання";
 Blockly.Msg.MOTOR_FOREWARD = "вперед";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Повертає поточну потужністю цього двигуна.";

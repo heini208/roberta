@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "程度";
 Blockly.Msg.MOTOR_DISTANCE = "距离 厘米";
 Blockly.Msg.MOTOR_DRIVE = "驱动";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "浮动";
 Blockly.Msg.MOTOR_FOREWARD = "向前";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "获取此电机的当前电源。";

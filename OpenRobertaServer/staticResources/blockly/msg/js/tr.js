@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "Derece.";
 Blockly.Msg.MOTOR_DISTANCE = "Uzaklik cm.";
 Blockly.Msg.MOTOR_DRIVE = "Sür";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "float";  // untranslated
 Blockly.Msg.MOTOR_FOREWARD = "Ileriye dogru.";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Motorun güncel güc degerini alir.";

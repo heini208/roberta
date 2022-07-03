@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "gradu";
 Blockly.Msg.MOTOR_DISTANCE = "distantzia cm-tan";
 Blockly.Msg.MOTOR_DRIVE = "mugitu";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "gelditu";
 Blockly.Msg.MOTOR_FOREWARD = "aurreraka";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Motor honen oraingo potentzia eskuratzen du.";

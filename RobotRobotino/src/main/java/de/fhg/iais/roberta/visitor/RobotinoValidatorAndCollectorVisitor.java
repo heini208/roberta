@@ -6,20 +6,20 @@ import de.fhg.iais.roberta.components.ConfigurationAst;
 import de.fhg.iais.roberta.components.UsedActor;
 import de.fhg.iais.roberta.components.UsedSensor;
 import de.fhg.iais.roberta.constants.RobotinoConstants;
-import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
-import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.MotorDriveStopAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveAction;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveActionDistance;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.configuration.ConfigurationComponent;
-import de.fhg.iais.roberta.syntax.lang.expr.EmptyExpr;
 import de.fhg.iais.roberta.syntax.lang.expr.NumConst;
-import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
-import de.fhg.iais.roberta.syntax.sensor.OdometryReset;
 import de.fhg.iais.roberta.syntax.sensor.generic.InfraredSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.PinGetValueSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TimerSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TouchSensor;
+import de.fhg.iais.roberta.syntax.sensor.robotino.OdometryPosition;
+import de.fhg.iais.roberta.syntax.sensor.robotino.OdometryReset;
 import de.fhg.iais.roberta.util.syntax.SC;
 import de.fhg.iais.roberta.visitor.validate.MotorValidatorAndCollectorVisitor;
 
@@ -46,26 +46,30 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
         usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
-
         requiredComponentVisited(omnidriveAction, omnidriveAction.xVel, omnidriveAction.yVel);
+        requiredComponentVisited(omnidriveAction, omnidriveAction.thetaVel);
 
-        if (!(omnidriveAction.distance instanceof EmptyExpr)) {
-            requiredComponentVisited(omnidriveAction, omnidriveAction.distance);
+        return null;
+    }
 
-            usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
-            usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVEFORDISTANCE);
+    @Override
+    public Void visitOmnidriveActionDistance(OmnidriveActionDistance<Void> omnidriveActionDistance) {
+        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
 
-            checkIfBothZeroSpeed(omnidriveAction);
-        } else {
-            requiredComponentVisited(omnidriveAction, omnidriveAction.thetaVel);
-        }
+        requiredComponentVisited(omnidriveActionDistance, omnidriveActionDistance.xVel, omnidriveActionDistance.yVel);
+        requiredComponentVisited(omnidriveActionDistance, omnidriveActionDistance.distance);
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVEFORDISTANCE);
+
+        checkIfBothZeroSpeed(omnidriveActionDistance);
         return null;
     }
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
         usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
-        requiredComponentVisited(turnAction, turnAction.getParam().getSpeed(), turnAction.getParam().getDuration().getValue());
+        requiredComponentVisited(turnAction, turnAction.param.getSpeed(), turnAction.param.getDuration().getValue());
 
         usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
@@ -92,12 +96,12 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         return null;
     }
 
-    private void checkIfBothZeroSpeed(OmnidriveAction<Void> omnidriveAction) {
-        if (omnidriveAction.xVel.getKind().hasName("NUM_CONST") && omnidriveAction.yVel.getKind().hasName("NUM_CONST")) {
+    private void checkIfBothZeroSpeed(OmnidriveActionDistance<Void> omnidriveActionDistance) {
+        if (omnidriveActionDistance.xVel.getKind().hasName("NUM_CONST") && omnidriveActionDistance.yVel.getKind().hasName("NUM_CONST")) {
 
-            if (Math.abs(Double.parseDouble(((NumConst<Void>) omnidriveAction.xVel).getValue())) < DOUBLE_EPS
-                    && Math.abs(Double.parseDouble(((NumConst<Void>) omnidriveAction.yVel).getValue())) < DOUBLE_EPS) {
-                addWarningToPhrase(omnidriveAction, "MOTOR_SPEED_0");
+            if (Math.abs(Double.parseDouble(((NumConst<Void>) omnidriveActionDistance.xVel).value)) < DOUBLE_EPS
+                    && Math.abs(Double.parseDouble(((NumConst<Void>) omnidriveActionDistance.yVel).value)) < DOUBLE_EPS) {
+                addWarningToPhrase(omnidriveActionDistance, "MOTOR_SPEED_0");
             }
         }
     }
@@ -129,9 +133,9 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
-        requiredComponentVisited(pinWriteValueAction, pinWriteValueAction.getValue());
+        requiredComponentVisited(pinWriteValueAction, pinWriteValueAction.value);
 
-        ConfigurationComponent usedConfigurationBlock = this.robotConfiguration.optConfigurationComponent(pinWriteValueAction.getPort());
+        ConfigurationComponent usedConfigurationBlock = this.robotConfiguration.optConfigurationComponent(pinWriteValueAction.port);
         if (usedConfigurationBlock == null) {
             addErrorToPhrase(pinWriteValueAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
