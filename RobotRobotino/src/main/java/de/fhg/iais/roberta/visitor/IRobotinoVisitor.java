@@ -1,15 +1,16 @@
 package de.fhg.iais.roberta.visitor;
 
-import de.fhg.iais.roberta.syntax.action.OmnidriveAction;
-import de.fhg.iais.roberta.syntax.action.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.MotorDriveStopAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
-import de.fhg.iais.roberta.syntax.sensor.OdometryPosition;
-import de.fhg.iais.roberta.syntax.sensor.OdometryReset;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveAction;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveActionDistance;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.sensor.generic.InfraredSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.PinGetValueSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TouchSensor;
+import de.fhg.iais.roberta.syntax.sensor.robotino.OdometryPosition;
+import de.fhg.iais.roberta.syntax.sensor.robotino.OdometryReset;
 import de.fhg.iais.roberta.visitor.hardware.sensor.ISensorVisitor;
 
 /**
@@ -20,6 +21,9 @@ public interface IRobotinoVisitor<V> extends ISensorVisitor<V> {
     V visitTouchSensor(TouchSensor<V> touchSensor);
 
     V visitOmnidriveAction(OmnidriveAction<V> omnidriveAction);
+
+    V visitOmnidriveActionDistance(OmnidriveActionDistance<V> omnidriveActionDistance);
+
 
     V visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction);
 

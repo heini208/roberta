@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "stupně";
 Blockly.Msg.MOTOR_DISTANCE = "vzdálenost v cm";
 Blockly.Msg.MOTOR_DRIVE = "jeď";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "uvolnit";
 Blockly.Msg.MOTOR_FOREWARD = "dopředu";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Vrátí aktuální rychlost/sílu tohoto motoru.";

@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "astetta";
 Blockly.Msg.MOTOR_DISTANCE = "etäisyys cm";
 Blockly.Msg.MOTOR_DRIVE = "aja";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "float";
 Blockly.Msg.MOTOR_FOREWARD = "eteen";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Gets current power of this motor.";

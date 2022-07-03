@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "grad";
 Blockly.Msg.MOTOR_DISTANCE = "avstånd cm";
 Blockly.Msg.MOTOR_DRIVE = "kör";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "rulla fritt";
 Blockly.Msg.MOTOR_FOREWARD = "framåt";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Aktuell prestanda för denna motor.";

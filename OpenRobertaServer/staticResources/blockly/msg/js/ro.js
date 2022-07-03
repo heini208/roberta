@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "grad";
 Blockly.Msg.MOTOR_DISTANCE = "distanta cm";
 Blockly.Msg.MOTOR_DRIVE = "actionare motor";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "ridica";
 Blockly.Msg.MOTOR_FOREWARD = "inainte";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Obține puterea curentă a acestui motor.";
