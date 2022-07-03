@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "grad";
 Blockly.Msg.MOTOR_DISTANCE = "afstand cm";
 Blockly.Msg.MOTOR_DRIVE = "kør";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "flyd";
 Blockly.Msg.MOTOR_FOREWARD = "fremad";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Aflæser denne motors nuværende kræft.";

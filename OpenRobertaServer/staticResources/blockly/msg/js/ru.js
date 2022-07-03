@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "градус";
 Blockly.Msg.MOTOR_DISTANCE = "расстояние, см";
 Blockly.Msg.MOTOR_DRIVE = "ехать";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "свободное движение";
 Blockly.Msg.MOTOR_FOREWARD = "вперед";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Возвращает текущую мозность поданную на мотор.";

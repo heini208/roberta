@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "程度";
 Blockly.Msg.MOTOR_DISTANCE = "距離 釐米";
 Blockly.Msg.MOTOR_DRIVE = "驅動";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "浮動";
 Blockly.Msg.MOTOR_FOREWARD = "向前";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "獲取此電機的當前電源。";

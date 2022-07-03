@@ -885,6 +885,7 @@ Blockly.Msg.MOTOR_CLOSE = "close";  // untranslated
 Blockly.Msg.MOTOR_DEGREE = "degrés";
 Blockly.Msg.MOTOR_DISTANCE = "distance en cm";
 Blockly.Msg.MOTOR_DRIVE = "rouler";
+Blockly.Msg.MOTOR_DRIVE_TO = "drive to";  // untranslated
 Blockly.Msg.MOTOR_FLOAT = "roue libre";
 Blockly.Msg.MOTOR_FOREWARD = "en avant";
 Blockly.Msg.MOTOR_GETPOWER_TOOLTIP = "Lit la puissance actuelle de ce moteur";
