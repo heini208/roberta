@@ -8,28 +8,27 @@ import de.fhg.iais.roberta.transformer.forField.NepoField;
 import de.fhg.iais.roberta.transformer.forField.NepoHide;
 import de.fhg.iais.roberta.transformer.forField.NepoValue;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
-import de.fhg.iais.roberta.util.ast.BlocklyBlockProperties;
-import de.fhg.iais.roberta.util.ast.BlocklyComment;
+import de.fhg.iais.roberta.util.ast.BlocklyProperties;
 import de.fhg.iais.roberta.util.dbc.Assert;
 import de.fhg.iais.roberta.util.syntax.BlocklyConstants;
 import de.fhg.iais.roberta.util.syntax.WithUserDefinedPort;
 
 
 @NepoPhrase(category = "ACTOR", blocklyNames = {"robActions_motorOmni_curve_for"}, name = "MOTOR_OMNIDRIVE_DISTANCE_ACTION")
-public class OmnidriveActionDistance<V> extends Action<V> implements WithUserDefinedPort<V> {
+public class OmnidriveActionDistance<V> extends Action implements WithUserDefinedPort<V> {
     @NepoValue(name = BlocklyConstants.X, type = BlocklyType.NUMBER)
-    public final Expr<V> xVel;
+    public final Expr xVel;
     @NepoValue(name = BlocklyConstants.Y, type = BlocklyType.NUMBER)
-    public final Expr<V> yVel;
+    public final Expr yVel;
     @NepoValue(name = BlocklyConstants.DISTANCE, type = BlocklyType.NUMBER)
-    public final Expr<V> distance;
+    public final Expr distance;
     @NepoField(name = BlocklyConstants.ACTORPORT, value = BlocklyConstants.EMPTY_PORT)
     public final String port;
     @NepoHide
     public final Hide hide;
 
-    public OmnidriveActionDistance(BlocklyBlockProperties properties, BlocklyComment comment, Expr<V> xVel, Expr<V> yVel, Expr<V> distance, String port, Hide hide) {
-        super(properties, comment);
+    public OmnidriveActionDistance(BlocklyProperties properties, Expr xVel, Expr yVel, Expr distance, String port, Hide hide) {
+        super(properties);
         Assert.nonEmptyString(port);
 
         this.hide = hide;

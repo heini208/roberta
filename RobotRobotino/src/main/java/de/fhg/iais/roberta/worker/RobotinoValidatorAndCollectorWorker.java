@@ -4,10 +4,12 @@ import com.google.common.collect.ClassToInstanceMap;
 import de.fhg.iais.roberta.bean.IProjectBean;
 import de.fhg.iais.roberta.components.Project;
 import de.fhg.iais.roberta.visitor.RobotinoMethods;
-import de.fhg.iais.roberta.visitor.validate.CommonNepoValidatorAndCollectorVisitor;
 import de.fhg.iais.roberta.visitor.RobotinoValidatorAndCollectorVisitor;
+import de.fhg.iais.roberta.visitor.validate.CommonNepoValidatorAndCollectorVisitor;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class RobotinoValidatorAndCollectorWorker extends AbstractValidatorAndCollectorWorker {
 
@@ -15,7 +17,7 @@ public class RobotinoValidatorAndCollectorWorker extends AbstractValidatorAndCol
 
     @Override
     protected CommonNepoValidatorAndCollectorVisitor getVisitor(
-            Project project, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
+            Project project, ClassToInstanceMap<IProjectBean.IBuilder> beanBuilders) {
         return new RobotinoValidatorAndCollectorVisitor(project.getConfigurationAst(), beanBuilders);
     }
 

@@ -47,7 +47,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
      * @param programPhrases to generate the code from
      */
     public RobotinoROSPythonVisitor(
-            List<List<Phrase<Void>>> programPhrases, ClassToInstanceMap<IProjectBean> beans, ConfigurationAst configurationAst) {
+            List<List<Phrase>> programPhrases, ClassToInstanceMap<IProjectBean> beans, ConfigurationAst configurationAst) {
         super(programPhrases, beans);
         this.configurationAst = configurationAst;
     }
@@ -123,8 +123,8 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitMainTask(MainTask<Void> mainTask) {
-        StmtList<Void> variables = mainTask.variables;
+    public Void visitMainTask(MainTask mainTask) {
+        StmtList variables = mainTask.variables;
         variables.accept(this);
         generateUserDefinedMethods();
         nlIndent();
@@ -218,12 +218,12 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitConnectConst(ConnectConst<Void> connectConst) {
+    public Void visitConnectConst(ConnectConst connectConst) {
         return null;
     }
 
     @Override
-    public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
+    public Void visitTimerSensor(TimerSensor timerSensor) {
         switch (timerSensor.getMode()) {
             case SC.DEFAULT:
             case SC.VALUE:
@@ -253,12 +253,12 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitWaitStmt(WaitStmt<Void> waitStmt) {
+    public Void visitWaitStmt(WaitStmt waitStmt) {
         return null;
     }
 
     @Override
-    public Void visitWaitTimeStmt(WaitTimeStmt<Void> waitTimeStmt) {
+    public Void visitWaitTimeStmt(WaitTimeStmt waitTimeStmt) {
         this.sb.append("rospy.sleep(");
         waitTimeStmt.time.accept(this);
         this.sb.append("/1000)");
@@ -267,7 +267,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
 
 
     @Override
-    public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
+    public Void visitOmnidriveAction(OmnidriveAction omnidriveAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.OMNIDRIVESPEED));
         this.sb.append("(");
         omnidriveAction.xVel.accept(this);
@@ -286,14 +286,14 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
+    public Void visitMotorDriveStopAction(MotorDriveStopAction stopAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.OMNIDRIVESPEED));
         this.sb.append("(0, 0, 0, False)");
         return null;
     }
 
     @Override
-    public Void visitOmnidriveActionDistance(OmnidriveActionDistance<Void> omnidriveActionDistance) {
+    public Void visitOmnidriveActionDistance(OmnidriveActionDistance omnidriveActionDistance) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.DRIVEFORDISTANCE));
         this.sb.append("(");
         omnidriveActionDistance.xVel.accept(this);
@@ -306,7 +306,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
+    public Void visitOmnidrivePositionAction(OmnidrivePositionAction omnidrivePositionAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.DRIVETOPOSITION));
         this.sb.append("(");
         omnidrivePositionAction.x.accept(this);
@@ -319,7 +319,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitTurnAction(TurnAction<Void> turnAction) {
+    public Void visitTurnAction(TurnAction turnAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.TURNFORDEGREES))
                 .append("(");
         if (turnAction.direction == TurnDirection.RIGHT) {
@@ -333,7 +333,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitOdometryPosition(OdometryPosition<Void> odometryPosition) {
+    public Void visitOdometryPosition(OdometryPosition odometryPosition) {
         if (odometryPosition.slot.equals("THETA")) {
             this.sb.append("(")
                     .append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.GETORIENTATION))
@@ -346,7 +346,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
+    public Void visitOdometryReset(OdometryReset odometryReset) {
         switch (odometryReset.slot) {
             case "ALL":
                 this.sb.append("_resetOdomPub.publish(Float32MultiArray())");
@@ -377,7 +377,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
+    public Void visitPinGetValueSensor(PinGetValueSensor pinGetValueSensor) {
         this.sb.append("rospy.wait_for_message(");
         if (pinGetValueSensor.getMode().equals(SC.DIGITAL)) {
             this.sb.append("\"digital_inputs\", Int8MultiArray");
@@ -389,13 +389,13 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
+    public Void visitTouchSensor(TouchSensor touchSensor) {
         this.sb.append("rospy.wait_for_message(\"bumper\", Bool).data");
         return null;
     }
 
     @Override
-    public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
+    public Void visitInfraredSensor(InfraredSensor infraredSensor) {
         String port = infraredSensor.getUserDefinedPort();
         this.sb.append("_getDistance(")
                 .append(port)
@@ -404,7 +404,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
+    public Void visitPinWriteValueAction(PinWriteValueAction pinWriteValueAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.SETDIGITALPIN))
                 .append("(")
                 .append(configurationAst.getConfigurationComponent(pinWriteValueAction.port).getComponentProperties().get("INPUT"))

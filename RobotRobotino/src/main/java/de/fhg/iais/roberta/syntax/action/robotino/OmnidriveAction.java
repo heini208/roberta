@@ -8,34 +8,33 @@ import de.fhg.iais.roberta.transformer.forField.NepoField;
 import de.fhg.iais.roberta.transformer.forField.NepoHide;
 import de.fhg.iais.roberta.transformer.forField.NepoValue;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
-import de.fhg.iais.roberta.util.ast.BlocklyBlockProperties;
-import de.fhg.iais.roberta.util.ast.BlocklyComment;
+import de.fhg.iais.roberta.util.ast.BlocklyProperties;
 import de.fhg.iais.roberta.util.dbc.Assert;
-import de.fhg.iais.roberta.util.syntax.*;
+import de.fhg.iais.roberta.util.syntax.BlocklyConstants;
+import de.fhg.iais.roberta.util.syntax.WithUserDefinedPort;
 
-@NepoPhrase(category = "ACTOR", blocklyNames = {"robActions_motorOmni_position"}, name = "MOTOR_OMNIDRIVE_POSITION_ACTION")
-public class OmnidrivePositionAction<V> extends Action<V> implements WithUserDefinedPort<V> {
+
+@NepoPhrase(category = "ACTOR", blocklyNames = {"robActions_motorOmni_curve"}, name = "MOTOR_OMNIDRIVE_ACTION")
+public class OmnidriveAction extends Action implements WithUserDefinedPort {
     @NepoValue(name = BlocklyConstants.X, type = BlocklyType.NUMBER)
-    public final Expr<V> x;
+    public final Expr xVel;
     @NepoValue(name = BlocklyConstants.Y, type = BlocklyType.NUMBER)
-    public final Expr<V> y;
-    @NepoValue(name = BlocklyConstants.POWER, type = BlocklyType.NUMBER)
-    public final Expr<V> power;
-
+    public final Expr yVel;
+    @NepoValue(name = "THETA", type = BlocklyType.NUMBER)
+    public final Expr thetaVel;
     @NepoField(name = BlocklyConstants.ACTORPORT, value = BlocklyConstants.EMPTY_PORT)
     public final String port;
-
     @NepoHide
     public final Hide hide;
 
-    public OmnidrivePositionAction(BlocklyBlockProperties properties, BlocklyComment comment, Expr<V> x, Expr<V> y, Expr<V> power, String port, Hide hide) {
-        super(properties, comment);
+    public OmnidriveAction(BlocklyProperties properties, Expr xVel, Expr yVel, Expr thetaVel, String port, Hide hide) {
+        super(properties);
         Assert.nonEmptyString(port);
 
         this.hide = hide;
-        this.x = x;
-        this.y = y;
-        this.power = power;
+        this.xVel = xVel;
+        this.yVel = yVel;
+        this.thetaVel = thetaVel;
         this.port = port;
 
         setReadOnly();
@@ -46,3 +45,4 @@ public class OmnidrivePositionAction<V> extends Action<V> implements WithUserDef
         return this.port;
     }
 }
+
