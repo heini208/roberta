@@ -18,27 +18,27 @@ import de.fhg.iais.roberta.visitor.hardware.sensor.ISensorVisitor;
  */
 public interface IRobotinoVisitor<V> extends ISensorVisitor<V> {
 
-    V visitTouchSensor(TouchSensor<V> touchSensor);
+    V visitTouchSensor(TouchSensor touchSensor);
 
-    V visitOmnidriveAction(OmnidriveAction<V> omnidriveAction);
+    V visitOmnidriveAction(OmnidriveAction omnidriveAction);
 
-    V visitOmnidriveActionDistance(OmnidriveActionDistance<V> omnidriveActionDistance);
+    V visitOmnidriveActionDistance(OmnidriveActionDistance omnidriveActionDistance);
 
 
-    V visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction);
+    V visitMotorDriveStopAction(MotorDriveStopAction stopAction);
 
-    V visitOmnidrivePositionAction(OmnidrivePositionAction<V> omnidrivePositionAction);
+    V visitOmnidrivePositionAction(OmnidrivePositionAction omnidrivePositionAction);
 
-    V visitOdometryPosition(OdometryPosition<V> odometryPosition);
+    V visitOdometryPosition(OdometryPosition odometryPosition);
 
-    V visitPinGetValueSensor(PinGetValueSensor<V> pinGetValueSensor);
+    V visitPinGetValueSensor(PinGetValueSensor pinGetValueSensor);
 
-    V visitInfraredSensor(InfraredSensor<V> infraredSensor);
+    V visitInfraredSensor(InfraredSensor infraredSensor);
 
-    V visitOdometryReset(OdometryReset<V> odometryReset);
+    V visitOdometryReset(OdometryReset odometryReset);
 
-    V visitPinWriteValueAction(PinWriteValueAction<V> pinWriteValueAction);
+    V visitPinWriteValueAction(PinWriteValueAction pinWriteValueAction);
 
-    V visitTurnAction(TurnAction<V> turnAction);
+    V visitTurnAction(TurnAction turnAction);
 
 }

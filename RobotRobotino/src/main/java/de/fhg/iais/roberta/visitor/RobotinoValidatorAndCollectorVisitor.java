@@ -26,24 +26,24 @@ import de.fhg.iais.roberta.visitor.validate.MotorValidatorAndCollectorVisitor;
 
 public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndCollectorVisitor implements IRobotinoVisitor<Void> {
 
-    public RobotinoValidatorAndCollectorVisitor(ConfigurationAst robotConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
+    public RobotinoValidatorAndCollectorVisitor(ConfigurationAst robotConfiguration, ClassToInstanceMap<IProjectBean.IBuilder> beanBuilders) {
         super(robotConfiguration, beanBuilders);
     }
 
     @Override
-    public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
+    public Void visitTimerSensor(TimerSensor timerSensor) {
         usedHardwareBuilder.addUsedSensor(new UsedSensor(timerSensor.getUserDefinedPort(), SC.TIMER, timerSensor.getMode()));
         return null;
     }
 
     @Override
-    public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
+    public Void visitTouchSensor(TouchSensor touchSensor) {
         usedHardwareBuilder.addUsedSensor(new UsedSensor(touchSensor.getUserDefinedPort(), SC.TOUCH, touchSensor.getMode()));
         return null;
     }
 
     @Override
-    public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
+    public Void visitOmnidriveAction(OmnidriveAction omnidriveAction) {
         addMotorMethodsAndHardware();
 
         requiredComponentVisited(omnidriveAction, omnidriveAction.xVel, omnidriveAction.yVel);
@@ -53,7 +53,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitOmnidriveActionDistance(OmnidriveActionDistance<Void> omnidriveActionDistance) {
+    public Void visitOmnidriveActionDistance(OmnidriveActionDistance omnidriveActionDistance) {
         addMotorMethodsAndHardware();
 
         requiredComponentVisited(omnidriveActionDistance, omnidriveActionDistance.xVel, omnidriveActionDistance.yVel);
@@ -66,7 +66,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitTurnAction(TurnAction<Void> turnAction) {
+    public Void visitTurnAction(TurnAction turnAction) {
         requiredComponentVisited(turnAction, turnAction.param.getSpeed(), turnAction.param.getDuration().getValue());
         usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
         addMotorMethodsAndHardware();
@@ -77,7 +77,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
 
     @Override
-    public Void visitOmnidrivePositionAction(OmnidrivePositionAction<Void> omnidrivePositionAction) {
+    public Void visitOmnidrivePositionAction(OmnidrivePositionAction omnidrivePositionAction) {
         requiredComponentVisited(omnidrivePositionAction, omnidrivePositionAction.x,
                 omnidrivePositionAction.y, omnidrivePositionAction.power);
 
@@ -93,25 +93,25 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         return null;
     }
 
-    private void checkIfBothZeroSpeed(OmnidriveActionDistance<Void> omnidriveActionDistance) {
+    private void checkIfBothZeroSpeed(OmnidriveActionDistance omnidriveActionDistance) {
         if (omnidriveActionDistance.xVel.getKind().hasName("NUM_CONST") && omnidriveActionDistance.yVel.getKind().hasName("NUM_CONST")) {
 
-            if (Math.abs(Double.parseDouble(((NumConst<Void>) omnidriveActionDistance.xVel).value)) < DOUBLE_EPS
-                    && Math.abs(Double.parseDouble(((NumConst<Void>) omnidriveActionDistance.yVel).value)) < DOUBLE_EPS) {
+            if (Math.abs(Double.parseDouble(((NumConst) omnidriveActionDistance.xVel).value)) < DOUBLE_EPS
+                    && Math.abs(Double.parseDouble(((NumConst) omnidriveActionDistance.yVel).value)) < DOUBLE_EPS) {
                 addWarningToPhrase(omnidriveActionDistance, "MOTOR_SPEED_0");
             }
         }
     }
 
     @Override
-    public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
+    public Void visitInfraredSensor(InfraredSensor infraredSensor) {
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETDISTANCE);
         usedHardwareBuilder.addUsedSensor(new UsedSensor(infraredSensor.getUserDefinedPort(), SC.INFRARED, infraredSensor.getMode()));
         return null;
     }
 
     @Override
-    public Void visitOdometryPosition(OdometryPosition<Void> odometryPosition) {
+    public Void visitOdometryPosition(OdometryPosition odometryPosition) {
         usedHardwareBuilder.addUsedSensor(new UsedSensor(odometryPosition.getUserDefinedPort(), RobotinoConstants.ODOMETRY, odometryPosition.slot));
         if (odometryPosition.slot.equals("THETA")) {
             usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
@@ -120,7 +120,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
+    public Void visitOdometryReset(OdometryReset odometryReset) {
         usedHardwareBuilder.addUsedSensor(new UsedSensor(odometryReset.getUserDefinedPort(), RobotinoConstants.ODOMETRY, odometryReset.slot));
         if (!odometryReset.slot.equals("THETA")) {
             usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
@@ -132,7 +132,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
+    public Void visitPinWriteValueAction(PinWriteValueAction pinWriteValueAction) {
         requiredComponentVisited(pinWriteValueAction, pinWriteValueAction.value);
 
         ConfigurationComponent usedConfigurationBlock = this.robotConfiguration.optConfigurationComponent(pinWriteValueAction.port);
@@ -146,7 +146,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinGetValueSensor) {
+    public Void visitPinGetValueSensor(PinGetValueSensor pinGetValueSensor) {
         ConfigurationComponent usedConfigurationBlock = this.robotConfiguration.optConfigurationComponent(pinGetValueSensor.getUserDefinedPort());
         if (usedConfigurationBlock == null) {
             addErrorToPhrase(pinGetValueSensor, "CONFIGURATION_ERROR_SENSOR_MISSING");
@@ -161,7 +161,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     }
 
     @Override
-    public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
+    public Void visitMotorDriveStopAction(MotorDriveStopAction stopAction) {
         addMotorMethodsAndHardware();
         return null;
     }
