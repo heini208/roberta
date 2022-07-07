@@ -108,6 +108,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
             this.sb.append("_motorPub = rospy.Publisher('cmd_vel', Twist, queue_size=10)");
             nlIndent();
             this.sb.append("_speed = Twist()\n_safetySetting = True\n_omnidriveTimer = 0");
+            nlIndent();
         }
         if (this.getBean(UsedHardwareBean.class).isActorUsed(SC.DIGITAL_PIN)) {
             this.sb.append("_digitalPinPub = rospy.Publisher('set_digital_output', Int8MultiArray, queue_size=10)");
@@ -161,7 +162,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
             nlIndent();
         }
         if (this.getBean(UsedHardwareBean.class).isSensorUsed(RobotinoConstants.ODOMETRY)) {
-            this.sb.append("_resetOdomPub.publish([0,0,0])");
+            this.sb.append("_resetOdomPub.publish(Float32MultiArray())");
             nlIndent();
         }
     }
@@ -348,25 +349,25 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     public Void visitOdometryReset(OdometryReset<Void> odometryReset) {
         switch (odometryReset.slot) {
             case "ALL":
-                this.sb.append("_resetOdomPub.publish([0,0,0])");
+                this.sb.append("_resetOdomPub.publish(Float32MultiArray())");
                 break;
             case "X":
-                this.sb.append("_resetOdomPub.publish([")
+                this.sb.append("_resetOdometry(")
                         .append("0, ")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.y, ")
-                        .append("_getOrientation() * (math.pi / 180)])");
+                        .append("_getOrientation() * (math.pi / 180))");
                 break;
             case "Y":
-                this.sb.append("_resetOdomPub.publish([")
+                this.sb.append("_resetOdometry(")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x, ")
                         .append("0, ")
-                        .append("_getOrientation() * (math.pi / 180)])");
+                        .append("_getOrientation() * (math.pi / 180))");
                 break;
             case "THETA":
-                this.sb.append("_resetOdomPub.publish([")
+                this.sb.append("_resetOdometry(")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x, ")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.y, ")
-                        .append("0])");
+                        .append("0)");
                 break;
             default:
                 throw new DbcException("Invalid Odometry Mode!");

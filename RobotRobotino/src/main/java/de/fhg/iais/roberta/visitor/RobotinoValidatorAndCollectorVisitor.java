@@ -125,6 +125,9 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         if (!odometryReset.slot.equals("THETA")) {
             usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
         }
+        if (!odometryReset.slot.equals("ALL")) {
+            usedMethodBuilder.addUsedMethod(RobotinoMethods.RESETODOMETRY);
+        }
         return null;
     }
 
