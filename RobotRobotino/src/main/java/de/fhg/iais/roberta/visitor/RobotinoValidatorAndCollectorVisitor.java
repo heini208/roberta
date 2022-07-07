@@ -44,8 +44,8 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitOmnidriveAction(OmnidriveAction<Void> omnidriveAction) {
-        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+        addMotorMethodsAndHardware();
+
         requiredComponentVisited(omnidriveAction, omnidriveAction.xVel, omnidriveAction.yVel);
         requiredComponentVisited(omnidriveAction, omnidriveAction.thetaVel);
 
@@ -54,8 +54,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitOmnidriveActionDistance(OmnidriveActionDistance<Void> omnidriveActionDistance) {
-        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+        addMotorMethodsAndHardware();
 
         requiredComponentVisited(omnidriveActionDistance, omnidriveActionDistance.xVel, omnidriveActionDistance.yVel);
         requiredComponentVisited(omnidriveActionDistance, omnidriveActionDistance.distance);
@@ -68,11 +67,9 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
-        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
         requiredComponentVisited(turnAction, turnAction.param.getSpeed(), turnAction.param.getDuration().getValue());
-
         usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+        addMotorMethodsAndHardware();
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.TURNFORDEGREES);
         return null;
@@ -84,10 +81,10 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         requiredComponentVisited(omnidrivePositionAction, omnidrivePositionAction.x,
                 omnidrivePositionAction.y, omnidrivePositionAction.power);
 
-        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
         usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
 
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+        addMotorMethodsAndHardware();
+
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVETOPOSITION);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETDIRECTION);
@@ -142,7 +139,6 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
         usedHardwareBuilder.addUsedActor(new UsedActor("", SC.DIGITAL_PIN));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.SETDIGITALPIN);
-        usedMethodBuilder.addUsedMethod(RobotinoMethods.RESETDIGITALPIN);
         return null;
     }
 
@@ -163,7 +159,13 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
-        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
+        addMotorMethodsAndHardware();
         return null;
+    }
+
+    private void addMotorMethodsAndHardware() {
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.PUBLISHVEL);
+        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
     }
 }

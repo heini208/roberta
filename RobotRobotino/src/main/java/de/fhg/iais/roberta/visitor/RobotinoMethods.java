@@ -2,8 +2,8 @@ package de.fhg.iais.roberta.visitor;
 
 public enum RobotinoMethods {
     OMNIDRIVESPEED,
+    PUBLISHVEL,
     SETDIGITALPIN,
-    RESETDIGITALPIN,
     GETORIENTATION,
     GETDISTANCE,
     DRIVETOPOSITION,
