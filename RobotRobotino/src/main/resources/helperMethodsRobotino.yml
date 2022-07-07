@@ -4,30 +4,29 @@ include: "classpath:/common.methods.yml"
 
 OMNIDRIVESPEED:
   PYTHON: |
-    def _setSpeedOmnidrive(x, y, z):
-        twist = Twist()
-        twist.linear.x = (1 / 100 * x) * 0.2
-        twist.linear.y = (1 / 100 * y) * 0.2 
-        twist.angular.z = 1 / 100 * z
-        _motorPub.publish(twist)
+    def _setSpeedOmnidrive(x, y, z, safety):
+        global _speed, _safetySetting
+        maxSpeed = 0.2
+        _safetySetting = safety
+        _speed.linear.x = (1 / 100 * x) * maxSpeed
+        _speed.linear.y = (1 / 100 * y) * maxSpeed
+        _speed.angular.z = 1 / 100 * z 
+
+PUBLISHVEL:
+  PYTHON: |
+    def _publishVel(event):
+        global _speed, _safetySetting
+        if _safetySetting and rospy.wait_for_message("bumper", Bool).data:
+            _speed = Twist()
+        _motorPub.publish(_speed)
 
 SETDIGITALPIN:
   PYTHON: |
     def _setDigitalPin(pos, value):
-        digitalReadings = DigitalReadings()
-        _digitalPinValues[pos-1] = value
-        digitalReadings.stamp = rospy.Time.now()
-        digitalReadings.values = _digitalPinValues
-        _digitalPinPub.publish(digitalReadings)
-
-RESETDIGITALPIN:
-  PYTHON: |
-    def _resetDigitalPins():
-        _digitalPinValues = [False for i in range(8)]
-        digitalReadings = DigitalReadings()
-        digitalReadings.stamp = rospy.Time.now()
-        digitalReadings.values = _digitalPinValues
-        _digitalPinPub.publish(digitalReadings)
+        _digitalPinValues[pos-1] = int(value)
+        int8Array = Int8MultiArray()
+        int8Array.data = _digitalPinValues
+        _digitalPinPub.publish(int8Array)
 
 GETORIENTATION:
   PYTHON: |
@@ -74,11 +73,11 @@ DRIVETOPOSITION:
             if diffx <= tolerance and diffy <= tolerance:
                 speedX = speedX * diffx/tolerance
                 speedY = speedY * diffy/tolerance
-            _setSpeedOmnidrive(speedX, speedY, 0)
+            _setSpeedOmnidrive(speedX, speedY, 0, True)
 
             if firstPositionX >= xTarget >= xPos or firstPositionX < xTarget <= xPos:
                 if firstPositionY >= yTarget >= yPos or firstPositionY < yTarget <= yPos:
-                    _setSpeedOmnidrive(0, 0, 0)
+                    _setSpeedOmnidrive(0, 0, 0, True)
                     break
         rospy.Rate(10).sleep()
 
@@ -88,34 +87,36 @@ DRIVEFORDISTANCE:
         xStart = rospy.wait_for_message("odom", Odometry).pose.pose.position.x
         yStart = rospy.wait_for_message("odom", Odometry).pose.pose.position.y
         if distance < 0:
-            _setSpeedOmnidrive(-xSpeed, -ySpeed, 0)
+            _setSpeedOmnidrive(-xSpeed, -ySpeed, 0, True)
         else:
-           _setSpeedOmnidrive(xSpeed, ySpeed, 0)
+           _setSpeedOmnidrive(xSpeed, ySpeed, 0, True)
         while True:
             xPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.x
             yPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.y
             currentDistance = math.sqrt(math.pow(xPos - xStart, 2) + math.pow(yPos - yStart, 2))
             if currentDistance * 100 >= abs(distance):
-                _setSpeedOmnidrive(0, 0, 0)
+                _setSpeedOmnidrive(0, 0, 0, True)
                 break
         rospy.Rate(10).sleep()
 
 TURNFORDEGREES:
   PYTHON: |
     def _turnForDegrees(speed, degrees):
-        start = _getOrientation() * (180 / math.pi)
-        stopTolerance = abs(3.5 * speed / 100) + 0.5
-        target = ((start + degrees) + 180) % 360 - 180
-        _setSpeedOmnidrive(0, 0, speed)
-        slowDownTolerance = abs(stopTolerance + (10 * (speed / 100)))
-        minimumSpeed = 1
-        while True:
-            orientation = _getOrientation() * (180 / math.pi)
-            distance = abs(orientation - target)
-            if distance <= slowDownTolerance - minimumSpeed:
-                speed = speed * (distance/slowDownTolerance) + minimumSpeed
-                _setSpeedOmnidrive(0, 0, speed)
-
-            if  distance <= stopTolerance:
-                _setSpeedOmnidrive(0, 0, 0)
+        if degrees < 0:
+            speed = speed * -1
+        _setSpeedOmnidrive(0, 0, speed, True)
+        distance = degrees
+        orientation = _getOrientation()
+        lastOrientation = orientation
+        while not rospy.is_shutdown():
+            orientation = _getOrientation()
+            traveledDegrees = abs(orientation - lastOrientation) * (180 / math.pi)
+            if traveledDegrees >= 5.2:
+                traveledDegrees = 2 * math.pi - traveledDegrees
+            distance -= traveledDegrees
+            if distance <= 0:
+                _setSpeedOmnidrive(0, 0, 0, True)
                 break
+            lastOrientation = orientation   
+            rospy.Rate(20).sleep()
+
