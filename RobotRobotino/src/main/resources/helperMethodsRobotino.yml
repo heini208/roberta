@@ -79,8 +79,9 @@ DRIVETOPOSITION:
                 if firstPositionY >= yTarget >= yPos or firstPositionY < yTarget <= yPos:
                     _setSpeedOmnidrive(0, 0, 0, True)
                     break
-            if rospy.wait_for_message("bumper", Bool).data:
-                break
+    
+            if _speed.linear.x == _speed.linear.y == _speed.angular.z == 0:
+                break        
         rospy.Rate(10).sleep()
 
 DRIVEFORDISTANCE:
