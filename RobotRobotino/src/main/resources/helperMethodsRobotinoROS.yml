@@ -79,9 +79,8 @@ DRIVETOPOSITION:
                 if firstPositionY >= yTarget >= yPos or firstPositionY < yTarget <= yPos:
                     _setSpeedOmnidrive(0, 0, 0, True)
                     break
-    
-            if _speed.linear.x == _speed.linear.y == _speed.linear.z == 0:
-                break        
+            if rospy.wait_for_message("bumper", Bool).data:
+                break
         rospy.Rate(10).sleep()
 
 DRIVEFORDISTANCE:
@@ -97,7 +96,7 @@ DRIVEFORDISTANCE:
             xPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.x
             yPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.y
             currentDistance = math.sqrt(math.pow(xPos - xStart, 2) + math.pow(yPos - yStart, 2))
-            if currentDistance * 100 >= abs(distance) or _speed.linear.x == _speed.linear.y == _speed.linear.z == 0:
+            if currentDistance * 100 >= abs(distance) or _speed.linear.x == _speed.linear.y == _speed.angular.z == 0:
                 _setSpeedOmnidrive(0, 0, 0, True)
                 break
         rospy.Rate(10).sleep()
@@ -117,7 +116,7 @@ TURNFORDEGREES:
             if traveledDegrees >= 330:
                 traveledDegrees = 360 - traveledDegrees
             distance -= traveledDegrees
-            if distance <= 0 or _speed.linear.z == 0:
+            if distance <= 0 or _speed.angular.z == 0:
                 _setSpeedOmnidrive(0, 0, 0, True)
                 break
             lastOrientation = orientation   

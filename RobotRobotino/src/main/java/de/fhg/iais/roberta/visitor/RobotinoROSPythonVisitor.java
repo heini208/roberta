@@ -107,7 +107,7 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
         if (this.getBean(UsedHardwareBean.class).isActorUsed(RobotinoConstants.OMNIDRIVE)) {
             this.sb.append("_motorPub = rospy.Publisher('cmd_vel', Twist, queue_size=10)");
             nlIndent();
-            this.sb.append("_speed = Twist()\n_safetySetting = True\n_omnidriveTimer = 0");
+            this.sb.append("_speed = Twist()\n_safetySetting = True\n");
             nlIndent();
         }
         if (this.getBean(UsedHardwareBean.class).isActorUsed(SC.DIGITAL_PIN)) {
@@ -118,8 +118,8 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
         }
         if (this.getBean(UsedHardwareBean.class).isSensorUsed(RobotinoConstants.ODOMETRY)) {
             this.sb.append("_resetOdomPub = rospy.Publisher('reset_odometry', Float32MultiArray, queue_size=10)");
+            nlIndent();
         }
-        nlIndent();
     }
 
     @Override
@@ -148,11 +148,6 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
             nlIndent();
             this.sb.append("global ").append(String.join(", ", this.usedGlobalVarInFunctions));
         }
-        //others
-        if (this.getBean(UsedHardwareBean.class).isActorUsed(RobotinoConstants.OMNIDRIVE)) {
-            nlIndent();
-            this.sb.append("global _omnidriveTimer");
-        }
         nlIndent();
     }
 
@@ -162,6 +157,8 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
             nlIndent();
         }
         if (this.getBean(UsedHardwareBean.class).isSensorUsed(RobotinoConstants.ODOMETRY)) {
+            this.sb.append("rospy.sleep(0.3)");
+            nlIndent();
             this.sb.append("_resetOdomPub.publish(Float32MultiArray())");
             nlIndent();
         }
@@ -211,7 +208,11 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
             nlIndent();
         }
         if (this.getBean(UsedHardwareBean.class).isActorUsed(SC.DIGITAL_PIN)) {
-            this.sb.append("_digitalPinPub.publish(Int8MultiArray())");
+            this.sb.append("int8Array = Int8MultiArray()");
+            nlIndent();
+            this.sb.append("int8Array.data = [0 for i in range(0, 8)]");
+            nlIndent();
+            this.sb.append("_digitalPinPub.publish(int8Array)");
             nlIndent();
         }
         decrIndentation();
