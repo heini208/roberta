@@ -356,13 +356,13 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
                 this.sb.append("_resetOdometry(")
                         .append("0, ")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.y, ")
-                        .append("_getOrientation() * (math.pi / 180))");
+                        .append("_getOrientation())");
                 break;
             case "Y":
                 this.sb.append("_resetOdometry(")
                         .append("rospy.wait_for_message(\"odom\", Odometry).pose.pose.position.x, ")
                         .append("0, ")
-                        .append("_getOrientation() * (math.pi / 180))");
+                        .append("_getOrientation())");
                 break;
             case "THETA":
                 this.sb.append("_resetOdometry(")
