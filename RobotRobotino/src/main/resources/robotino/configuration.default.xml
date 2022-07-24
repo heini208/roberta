@@ -2,6 +2,7 @@
     <instance x="300" y="80">
         <block type="robConf_omnidrive" intask="true" id="1" deletable="false">
             <field name="NAME">_O</field>
+            <field name="WEIGHT_KG">20</field>
         </block>
     </instance>
     <instance x="100" y="50">

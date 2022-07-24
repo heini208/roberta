@@ -15,6 +15,7 @@ import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
 import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveAction;
 import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveActionDistance;
 import de.fhg.iais.roberta.syntax.action.robotino.OmnidrivePositionAction;
+import de.fhg.iais.roberta.syntax.configuration.ConfigurationComponent;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
 import de.fhg.iais.roberta.syntax.lang.expr.ConnectConst;
 import de.fhg.iais.roberta.syntax.lang.stmt.StmtList;
@@ -109,6 +110,8 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
             nlIndent();
             this.sb.append("_speed = Twist()\n_safetySetting = True\n");
             nlIndent();
+            this.sb.append("_weight = " + Double.parseDouble(getOmnidrive().getComponentProperties().get("WEIGHT_KG")));
+            nlIndent();
         }
         if (this.getBean(UsedHardwareBean.class).isActorUsed(SC.DIGITAL_PIN)) {
             this.sb.append("_digitalPinPub = rospy.Publisher('set_digital_output', Int8MultiArray, queue_size=10)");
@@ -120,6 +123,15 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
             this.sb.append("_resetOdomPub = rospy.Publisher('reset_odometry', Float32MultiArray, queue_size=10)");
             nlIndent();
         }
+    }
+
+    private ConfigurationComponent getOmnidrive() {
+        for (ConfigurationComponent component : this.configurationAst.getConfigurationComponents().values()) {
+            if (component.componentType.equals(RobotinoConstants.OMNIDRIVE)) {
+                return component;
+            }
+        }
+        return null;
     }
 
     @Override

@@ -62,7 +62,7 @@ DRIVETOPOSITION:
     def _driveToPosition(xTarget, yTarget, speed):
         firstPositionX = rospy.wait_for_message("odom", Odometry).pose.pose.position.x * 100
         firstPositionY = rospy.wait_for_message("odom", Odometry).pose.pose.position.y * 100
-        tolerance = 20 * speed/100  
+        tolerance = _weight * speed/100  
         while True:
             speedX, speedY = _getDirection(xTarget, yTarget, speed)
             xPos = rospy.wait_for_message("odom", Odometry).pose.pose.position.x * 100
@@ -92,7 +92,7 @@ DRIVEFORDISTANCE:
             ySpeed = -ySpeed
         _setSpeedOmnidrive(xSpeed, ySpeed, 0, True)
 
-        tolerance = abs((20 * (math.sqrt(math.pow(xSpeed,2) + math.pow(ySpeed,2))/141.42)))
+        tolerance = abs((_weight * (math.sqrt(math.pow(xSpeed,2) + math.pow(ySpeed,2))/141.42)))
         minSpeedX = 0
         minSpeedY = 0
         slowDownTarget = (abs(distance) - tolerance)
@@ -128,7 +128,7 @@ TURNFORDEGREES:
          distance = abs(degrees)
          orientation = _getOrientation()
          lastOrientation = orientation
-         speedModifier = 40 * (abs(speed)/100)
+         speedModifier = _weight * (abs(speed)/100)
          while not rospy.is_shutdown():
             orientation = _getOrientation()
             traveledDegrees = abs(orientation - lastOrientation) * (180 / math.pi)
