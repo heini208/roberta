@@ -1,7 +1,7 @@
 {
 	"@metadata": {
 		"author": "Ellen Spertus <ellen.spertus@gmail.com>",
-		"lastupdated": "2022-07-07 22:02:26.362652",
+		"lastupdated": "2022-07-24 03:25:08.153175",
 		"locale": "en",
 		"messagedocumentation" : "qqq"
 	},
@@ -469,6 +469,7 @@
 	"SET": "set",
 	"BRICK_WHEEL_DIAMETER": "wheel diameter",
 	"BRICK_TRACK_WIDTH": "track width",
+	"WEIGHT_KG": "weight kg",
 	"ACTION_MOTOR": "motor",
 	"MOTOR": "motor",
 	"MOTOR_MIDDLE": "middle",
@@ -1660,6 +1661,7 @@
 	"PROGRAM_ERROR_EXPRBLOCK_PARSE": "This expression is syntactically incorrect.",
 	"ICON_BLOCKING_TOOLTIP": "Blocking block! This blocks needs some time to be executed, so other's have to wait until it gives back the control to the caller function.",
 	"ORA_FIRMWARE_RESET_ERROR": "Loading the original program failed!",
+	"ORA_FIRMWARE_RESET_SUCCESS": "Your original program will run in a moment!",
 	"MENU_RESET_FIRMWARE": "reset to factory defaults",
 	"MENU_SOURCE_CODE_EDITOR": "open source code editor",
 	"SOURCE_CODE_EDITOR_RUN_TOOLTIP": "Run on the robot.",
