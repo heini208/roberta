@@ -136,7 +136,7 @@ TURNFORDEGREES:
          while not rospy.is_shutdown():
             orientation = _getOrientation()
             traveledDegrees = abs(orientation - lastOrientation) * (180 / math.pi)
-            if (speed > 0 and lastOrientation > orientation) or (speed < 0 and lastOrientation < orientation):
+            if ((speed > 0 and lastOrientation > orientation) or (speed < 0 and lastOrientation < orientation))  and traveledDegrees > 300:
                 traveledDegrees = 360 - traveledDegrees
             distance -= traveledDegrees
             if distance <= speedModifier:

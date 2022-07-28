@@ -23,6 +23,8 @@ import de.fhg.iais.roberta.syntax.sensor.robotino.OdometryReset;
 import de.fhg.iais.roberta.util.syntax.SC;
 import de.fhg.iais.roberta.visitor.validate.MotorValidatorAndCollectorVisitor;
 
+import java.util.Map;
+
 
 public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndCollectorVisitor implements IRobotinoVisitor<Void> {
 
@@ -58,7 +60,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
 
         requiredComponentVisited(omnidriveDistanceAction, omnidriveDistanceAction.xVel, omnidriveDistanceAction.yVel);
         requiredComponentVisited(omnidriveDistanceAction, omnidriveDistanceAction.distance);
-        usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(getConfigPort(RobotinoConstants.ODOMETRY), RobotinoConstants.ODOMETRY, null));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVEFORDISTANCE);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETPOSITION);
 
@@ -70,7 +72,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     @Override
     public Void visitTurnAction(TurnAction turnAction) {
         requiredComponentVisited(turnAction, turnAction.param.getSpeed(), turnAction.param.getDuration().getValue());
-        usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(getConfigPort(RobotinoConstants.ODOMETRY), RobotinoConstants.ODOMETRY, null));
         addMotorMethodsAndHardware();
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.TURNFORDEGREES);
@@ -83,7 +85,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         requiredComponentVisited(omnidrivePositionAction, omnidrivePositionAction.x,
                 omnidrivePositionAction.y, omnidrivePositionAction.power);
 
-        usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
+        usedHardwareBuilder.addUsedSensor(new UsedSensor(getConfigPort(RobotinoConstants.ODOMETRY), RobotinoConstants.ODOMETRY, null));
 
         addMotorMethodsAndHardware();
 
@@ -143,7 +145,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
             addErrorToPhrase(pinWriteValueAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
 
-        usedHardwareBuilder.addUsedActor(new UsedActor("", SC.DIGITAL_PIN));
+        usedHardwareBuilder.addUsedActor(new UsedActor(getConfigPort(pinWriteValueAction.port), SC.DIGITAL_PIN));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.SETDIGITALPIN);
         return null;
     }
@@ -172,6 +174,16 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
     private void addMotorMethodsAndHardware() {
         usedMethodBuilder.addUsedMethod(RobotinoMethods.OMNIDRIVESPEED);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.PUBLISHVEL);
-        usedHardwareBuilder.addUsedActor(new UsedActor("", RobotinoConstants.OMNIDRIVE));
+        usedHardwareBuilder.addUsedActor(new UsedActor(getConfigPort(RobotinoConstants.OMNIDRIVE), RobotinoConstants.OMNIDRIVE));
+    }
+
+    private String getConfigPort(String name) {
+        Map<String, ConfigurationComponent> configComponents = this.robotConfiguration.getConfigurationComponents();
+        for (ConfigurationComponent component : configComponents.values()) {
+            if (component.componentType.equals(name)) {
+                return component.userDefinedPortName;
+            }
+        }
+        return "";
     }
 }
