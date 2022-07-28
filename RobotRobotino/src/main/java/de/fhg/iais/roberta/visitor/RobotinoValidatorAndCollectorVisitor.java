@@ -60,6 +60,8 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         requiredComponentVisited(omnidriveDistanceAction, omnidriveDistanceAction.distance);
         usedHardwareBuilder.addUsedSensor(new UsedSensor(null, RobotinoConstants.ODOMETRY, null));
         usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVEFORDISTANCE);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETPOSITION);
+
 
         checkIfBothZeroSpeed(omnidriveDistanceAction);
         return null;
@@ -88,6 +90,7 @@ public class RobotinoValidatorAndCollectorVisitor extends MotorValidatorAndColle
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETORIENTATION);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.DRIVETOPOSITION);
         usedMethodBuilder.addUsedMethod(RobotinoMethods.GETDIRECTION);
+        usedMethodBuilder.addUsedMethod(RobotinoMethods.GETPOSITION);
 
         checkForZeroSpeed(omnidrivePositionAction, omnidrivePositionAction.power);
         return null;
