@@ -4,7 +4,7 @@ import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.MotorDriveStopAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
 import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveAction;
-import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveActionDistance;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveDistanceAction;
 import de.fhg.iais.roberta.syntax.action.robotino.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.sensor.generic.InfraredSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.PinGetValueSensor;
@@ -22,7 +22,7 @@ public interface IRobotinoVisitor<V> extends ISensorVisitor<V> {
 
     V visitOmnidriveAction(OmnidriveAction omnidriveAction);
 
-    V visitOmnidriveActionDistance(OmnidriveActionDistance omnidriveActionDistance);
+    V visitOmnidriveDistanceAction(OmnidriveDistanceAction omnidriveDistanceAction);
 
 
     V visitMotorDriveStopAction(MotorDriveStopAction stopAction);
