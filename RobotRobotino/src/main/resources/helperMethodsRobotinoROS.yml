@@ -112,7 +112,7 @@ DRIVEFORDISTANCE:
                     minSpeedY = (ySpeed/abs(ySpeed)) * 1
                 multiplier = (abs(distance) - currentDistance * 100) / tolerance
                 newSpeedX = (multiplier * xSpeed) + minSpeedX
-                newSpeedY = (multiplier * ySpeed) + minSpeedX
+                newSpeedY = (multiplier * ySpeed) + minSpeedY
                 _setSpeedOmnidrive(newSpeedX,newSpeedY,0,True)
             rospy.Rate(10).sleep()
 
@@ -128,11 +128,11 @@ TURNFORDEGREES:
          distance = abs(degrees)
          orientation = _getOrientation()
          lastOrientation = orientation
-         speedModifier = _weight * (abs(speed)/100)
+         speedModifier = 2 * _weight * (abs(speed)/100)
          while not rospy.is_shutdown():
             orientation = _getOrientation()
             traveledDegrees = abs(orientation - lastOrientation) * (180 / math.pi)
-            if (speed < 0 and lastOrientation > orientation) or (speed > 0 and lastOrientation < orientation):
+            if (speed > 0 and lastOrientation > orientation) or (speed < 0 and lastOrientation < orientation):
                 traveledDegrees = 360 - traveledDegrees
             distance -= traveledDegrees
             if distance <= speedModifier:

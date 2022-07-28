@@ -13,7 +13,7 @@ import de.fhg.iais.roberta.syntax.action.generic.PinWriteValueAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.MotorDriveStopAction;
 import de.fhg.iais.roberta.syntax.action.motor.differential.TurnAction;
 import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveAction;
-import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveActionDistance;
+import de.fhg.iais.roberta.syntax.action.robotino.OmnidriveDistanceAction;
 import de.fhg.iais.roberta.syntax.action.robotino.OmnidrivePositionAction;
 import de.fhg.iais.roberta.syntax.configuration.ConfigurationComponent;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
@@ -306,14 +306,14 @@ public final class RobotinoROSPythonVisitor extends AbstractPythonVisitor implem
     }
 
     @Override
-    public Void visitOmnidriveActionDistance(OmnidriveActionDistance omnidriveActionDistance) {
+    public Void visitOmnidriveDistanceAction(OmnidriveDistanceAction omnidriveDistanceAction) {
         this.sb.append(this.getBean(CodeGeneratorSetupBean.class).getHelperMethodGenerator().getHelperMethodName(RobotinoMethods.DRIVEFORDISTANCE));
         this.sb.append("(");
-        omnidriveActionDistance.xVel.accept(this);
+        omnidriveDistanceAction.xVel.accept(this);
         this.sb.append(", ");
-        omnidriveActionDistance.yVel.accept(this);
+        omnidriveDistanceAction.yVel.accept(this);
         this.sb.append(", ");
-        omnidriveActionDistance.distance.accept(this);
+        omnidriveDistanceAction.distance.accept(this);
         this.sb.append(")");
         return null;
     }

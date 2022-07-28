@@ -15,7 +15,7 @@ import de.fhg.iais.roberta.util.syntax.WithUserDefinedPort;
 
 
 @NepoPhrase(category = "ACTOR", blocklyNames = {"robActions_motorOmni_curve_for"}, name = "MOTOR_OMNIDRIVE_DISTANCE_ACTION")
-public class OmnidriveActionDistance<V> extends Action implements WithUserDefinedPort<V> {
+public class OmnidriveDistanceAction<V> extends Action implements WithUserDefinedPort<V> {
     @NepoValue(name = BlocklyConstants.X, type = BlocklyType.NUMBER)
     public final Expr xVel;
     @NepoValue(name = BlocklyConstants.Y, type = BlocklyType.NUMBER)
@@ -27,7 +27,7 @@ public class OmnidriveActionDistance<V> extends Action implements WithUserDefine
     @NepoHide
     public final Hide hide;
 
-    public OmnidriveActionDistance(BlocklyProperties properties, Expr xVel, Expr yVel, Expr distance, String port, Hide hide) {
+    public OmnidriveDistanceAction(BlocklyProperties properties, Expr xVel, Expr yVel, Expr distance, String port, Hide hide) {
         super(properties);
         Assert.nonEmptyString(port);
 
