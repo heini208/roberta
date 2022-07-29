@@ -147,7 +147,38 @@ public class Nano33bleCppVisitor extends ArduinoCppVisitor implements INano33Ble
 
     @Override
     public Void visitNeuralNetworkInitRawData(NeuralNetworkInitRawData nn) {
-        this.sb.append("// visitNeuralNetworkInitRawData");
+        int FNN_3_LAYERS = Integer.parseInt(configuration.getConfigurationComponent("_A").getProperty("AIFES_FNN_LAYERS"));
+        this.sb.append("uint32_t FNN_structure[")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_FNN_LAYERS"))
+            .append("] = {")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_NUMBER_INPUT_NEURONS"))
+            .append(",")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_NUMBER_HIDDENLAYERS_NEURONS"))
+            .append(",")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_NUMBER_OUTPUT_NEURONS"))
+            .append("}; \n");
+        for ( int i = 0; i < FNN_3_LAYERS - 1; i++ ) {
+            this.sb.append("    FNN_activations[")
+                .append(i)
+                .append("] = ")
+                .append("AIfES_E_")
+                .append(configuration.getConfigurationComponent("_A").getProperty("Learning Function"))//GrosßGeschrieben "Learning Function" und klein die Funktionien selbst
+                .append(";\n");
+        }
+        this.sb.append("    uint32_t weight_number = AIFES_E_flat_weights_number_fnn_f32(FNN_structure,FNN_3_LAYERS);")
+            .append("\n")
+            .append("    float FlatWeights[weight_number];")
+            .append("\n")
+            .append("    AIFES_E_model_parameter_fnn_f32 FNN;")
+            .append("\n")
+            .append("    FNN.layer_count = FNN_3_LAYERS;")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_FNN_LAYERS"))
+            .append("; \n")
+            .append("    FNN.fnn_structure = FNN_structure;")
+            .append("\n")
+            .append("    FNN.fnn_activations = FNN_activations;")
+            .append("\n")
+            .append("    FNN.flat_weights = FlatWeights;");
         return null;
     }
 
@@ -164,8 +195,26 @@ public class Nano33bleCppVisitor extends ArduinoCppVisitor implements INano33Ble
     }
 
     @Override
-    public Void visitNeuralNetworkTrain(NeuralNetworkTrain nn) {
-        this.sb.append("// visitNeuralNetworkTrain");
+    public Void visitNeuralNetworkTrain(NeuralNetworkTrain nn) {//Paar Sachen werden in andere Action-Bloks eingestellt
+        this.sb.append("FNN_INIT_WEIGHTS.init_weights_method = AIfES_E_")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_WEIGHT"))
+            .append("; \n")
+            .append("    FNN_INIT_WEIGHTS.min_init_uniform = ")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_MIN_WEIGHT"))
+            .append("; \n")
+            .append("    FNN_INIT_WEIGHTS.max_init_uniform = ")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_MAX_WEIGHT"))
+            .append("    AIFES_E_training_parameter_fnn_f32  FNN_TRAIN; \n")
+            .append("    FNN_TRAIN.loss = AIfES_")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_LOSS"))
+            .append("; \n")
+            .append("    FNN_TRAIN.batch_size = ")
+            .append(configuration.getConfigurationComponent("_A").getProperty("AIFES_DATASET"))
+            .append("    FNN_TRAIN.epochs_loss_print_interval = PRINT_INTERVAL; \n")
+            .append("    FNN_TRAIN.loss_print_function = printLoss; \n")
+            .append("    int8_t error = 0; \n")
+            .append("    error = AIFES_E_training_fnn_f32(&input_tensor,&target_tensor,&FNN,&FNN_TRAIN,&FNN_INIT_WEIGHTS,&output_tensor); \n")
+            .append("    error = AIFES_E_inference_fnn_f32(&input_tensor,&FNN,&output_tensor); \n");
         return null;
     }
 

@@ -161,8 +161,7 @@
         <block type="logic_ternary"/>
     </category>
 
-    <category name="TOOLBOX_NN" svg="true">
-        <block type="robActions_aifes_setupneuralnet"></block>
+    <category name="AIFES" svg="true">
         <block type="robActions_aifes_initrawdata"></block>
         <block type="robActions_aifes_addrawdata"></block>
         <block type="robActions_aifes_addtrainingsdata"></block>
